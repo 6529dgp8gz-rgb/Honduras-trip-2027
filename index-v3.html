@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Central America Trip Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --jungle: #1a3a2a; --jungle-light: #254d38; --ocean: #0a7ea4;
+    --sand: #e8d5a3; --sand-light: #f5edd6; --coral: #e05c3a;
+    --cream: #faf6ee; --text: #1a1a1a; --text-muted: #666;
+    --border: #ddd5c0; --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  .header { background: var(--jungle); color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; }
+  .header-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; }
+  .header-title span { color: var(--sand); font-style: italic; }
+  .header-subtitle { font-size: 0.75rem; opacity: 0.6; margin-top: 1px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { padding: 8px 16px; border-radius: 6px; border: none; background: transparent; color: rgba(255,255,255,0.6); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+  .nav-tab.active { background: var(--coral); color: white; }
+  .nav-tab:hover { background: rgba(255,255,255,0.12); color: white; }
+
+  .main { max-width: 1400px; margin: 0 auto; padding: 28px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+  .summary-card { background: white; border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); border-left: 3px solid var(--coral); }
+  .summary-card.green { border-left-color: var(--jungle-light); }
+  .summary-card.blue { border-left-color: var(--ocean); }
+  .summary-card.sand { border-left-color: #c4a55a; }
+  .summary-card.purple { border-left-color: #8b6fc0; }
+  .summary-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px; }
+  .summary-value { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; }
+  .summary-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── ACCORDION ITINERARY ── */
+  .accordion { display: flex; flex-direction: column; gap: 8px; }
+  .acc-country { border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+  .acc-country-header { display: flex; align-items: center; gap: 14px; padding: 14px 16px; cursor: pointer; border-left: 4px solid transparent; }
+  .acc-country-header:hover { filter: brightness(0.97); }
+  .acc-flag { font-size: 1.6rem; }
+  .acc-country-info { flex: 1; }
+  .acc-country-name { font-weight: 700; font-size: 0.95rem; }
+  .acc-country-meta { font-size: 0.73rem; color: #555; margin-top: 2px; }
+  .acc-country-visa { font-size: 0.7rem; margin-top: 1px; }
+  .acc-days { font-family: 'DM Mono', monospace; font-weight: 700; font-size: 0.9rem; }
+  .acc-arrow { font-size: 0.75rem; color: #aaa; transition: transform 0.2s; margin-left: 4px; }
+  .acc-country.open .acc-arrow { transform: rotate(180deg); }
+  .acc-stops { display: none; background: white; }
+  .acc-country.open .acc-stops { display: block; }
+
+  .acc-stop { border-bottom: 1px solid var(--border); }
+  .acc-stop:last-child { border-bottom: none; }
+  .acc-stop-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; }
+  .acc-stop-header:hover { background: var(--sand-light); }
+  .acc-stop-num { width: 28px; height: 28px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .acc-stop-title { flex: 1; }
+  .acc-stop-name { font-weight: 600; font-size: 0.92rem; }
+  .acc-stop-meta { font-size: 0.73rem; color: #888; margin-top: 2px; }
+  .acc-stop-arrow { font-size: 0.72rem; color: #bbb; transition: transform 0.2s; }
+  .acc-stop.open .acc-stop-arrow { transform: rotate(180deg); }
+  .acc-stop-body { display: none; padding: 0 16px 14px 16px; border-top: 1px dashed var(--border); }
+  .acc-stop.open .acc-stop-body { display: block; }
+
+  .stop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 12px 0; }
+  .info-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 4px; }
+  .info-value { font-size: 0.88rem; font-weight: 500; }
+  .info-list { list-style: none; margin: 6px 0 10px; }
+  .info-list li { font-size: 0.84rem; padding: 3px 0 3px 14px; position: relative; border-bottom: 1px dotted var(--border); }
+  .info-list li::before { content: '→'; position: absolute; left: 0; font-size: 0.72rem; }
+  .stop-note { background: var(--sand-light); border-radius: 8px; padding: 10px 12px; font-size: 0.82rem; color: var(--jungle); border-left: 3px solid var(--sand); margin-top: 8px; }
+  .stop-note strong { display: block; margin-bottom: 3px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .stop-badge { padding: 3px 9px; border-radius: 20px; font-size: 0.7rem; font-weight: 500; }
+  .badge-diving { background: #e0f0f8; color: #0a5d78; }
+  .badge-nature { background: #e0f0e8; color: #1a5a30; }
+  .badge-culture { background: #f5ece0; color: #8b4a10; }
+  .badge-beach { background: #fef0e0; color: #8b5e10; }
+  .badge-city { background: #f0e8f5; color: #5a2d8b; }
+
+  /* ── CALENDAR ── */
+  .calendar-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+  .calendar-months { display: flex; flex-direction: column; gap: 24px; }
+  .month-block { background: white; border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .month-header { background: var(--jungle); color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .month-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); width: 100%; }
+  .cal-dow { text-align: center; font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); padding: 8px 2px 5px; border-bottom: 1px solid var(--border); }
+  .cal-day { min-height: 52px; padding: 4px 3px; border-bottom: 1px solid #f0ebe0; border-right: 1px solid #f0ebe0; overflow: hidden; min-width: 0; }
+  .cal-day:nth-child(7n) { border-right: none; }
+  .cal-day.empty { background: #fafaf8; }
+  .cal-day-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; }
+  .cal-event { border-radius: 3px; padding: 1px 3px; font-size: 0.58rem; font-weight: 500; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
+  .ev-mexico { background: #fde8d8; color: #8b3010; }
+  .ev-guatemala { background: #d8f0e0; color: #1a5a30; }
+  .ev-honduras { background: #d8eaf8; color: #0a4a6a; }
+  .ev-panama { background: #ead8f8; color: #4a1a7a; }
+  .ev-transit { background: #f0f0e0; color: #5a5a20; border: 1px dashed #c0c080; }
+
+  .cal-sidebar { position: sticky; top: 80px; display: flex; flex-direction: column; gap: 16px; }
+  .legend-card, .visa-card, .checklist-card { background: white; border-radius: 12px; box-shadow: var(--shadow); padding: 18px; }
+  .card-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 12px; font-weight: 600; }
+  .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .visa-alert { background: #fff8e0; border: 1px solid #f0c840; border-radius: 8px; padding: 12px; font-size: 0.82rem; color: #7a5800; margin-bottom: 10px; }
+  .visa-counter { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .visa-counter:last-child { border-bottom: none; }
+  .visa-days { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.85rem; }
+  .visa-days.ok { color: #2a7a40; }
+  .visa-days.warn { color: #c04010; }
+  .checklist-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.84rem; }
+  .checklist-item:last-child { border-bottom: none; }
+  .check-box { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .check-box.checked { background: var(--jungle); border-color: var(--jungle); color: white; font-size: 0.7rem; }
+
+  /* ── BUDGET ── */
+  .budget-card { background: white; border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+  .budget-card-header { padding: 16px 20px; background: var(--jungle); color: white; display: flex; justify-content: space-between; align-items: center; }
+  .budget-card-header h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+  .budget-total { font-family: 'DM Mono', monospace; font-size: 1.1rem; color: var(--sand); }
+  .budget-table { width: 100%; border-collapse: collapse; }
+  .budget-table th { text-align: left; padding: 10px 16px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--sand-light); }
+  .budget-table td { padding: 10px 16px; font-size: 0.875rem; border-bottom: 1px solid #f0ebe0; }
+  .amount { font-family: 'DM Mono', monospace; font-weight: 500; text-align: right; }
+  .amount.green { color: #2a7a40; }
+
+  /* ── NOTES ── */
+  .notes-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+  .notes-categories { display: flex; flex-direction: column; gap: 8px; position: sticky; top: 80px; }
+  .note-cat-btn { padding: 10px 14px; border-radius: 8px; border: none; background: white; box-shadow: var(--shadow); cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; transition: all 0.15s; }
+  .note-cat-btn.active, .note-cat-btn:hover { background: var(--jungle); color: white; }
+  .notes-section { display: none; }
+  .notes-section.active { display: block; }
+  .notes-section h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 20px; }
+  .info-cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .info-card { background: white; border-radius: 12px; box-shadow: var(--shadow); padding: 18px; }
+  .info-card h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 12px; }
+  .info-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .info-row:last-child { border-bottom: none; }
+  .info-row span:last-child { font-weight: 500; text-align: right; }
+  .shared-notes-area { background: white; border-radius: 12px; box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; }
+  .shared-notes-area h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 14px; }
+  .big-textarea { width: 100%; min-height: 160px; border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; resize: vertical; color: var(--text); line-height: 1.6; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; margin: 2px; }
+  .tag-warn { background: #fce8c0; color: #8b4a00; }
+  .tag-ok { background: #d8f0e0; color: #1a5a30; }
+  .tag-info { background: #d8eaf8; color: #0a3a5a; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .summary-bar { grid-template-columns: repeat(3, 1fr); }
+    .calendar-layout, .notes-layout { grid-template-columns: 1fr; }
+    .cal-sidebar { position: static; }
+    .stop-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .header-inner { flex-direction: column; align-items: stretch; padding: 10px 12px 0; gap: 8px; }
+    .header-subtitle { display: none; }
+    .nav-tabs { border-top: 1px solid rgba(255,255,255,0.1); padding: 4px 0 6px; }
+    .nav-tab { flex: 1; text-align: center; padding: 7px 4px; font-size: 0.72rem; border-radius: 4px; }
+    .main { padding: 12px; }
+    .summary-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+    .stop-grid { grid-template-columns: 1fr; }
+    .cal-day { min-height: 44px; }
+    .cal-dow { font-size: 0.58rem; }
+    .notes-layout { grid-template-columns: 1fr; }
+    .notes-categories { flex-direction: row; flex-wrap: wrap; position: static; }
+    .info-cards-grid { grid-template-columns: 1fr; }
+    .header { padding-top: env(safe-area-inset-top); }
+    .main { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="header-title">Central America <span>Adventure</span></div>
+      <div class="header-subtitle">Germany → Mexico → Guatemala → Honduras → Panama</div>
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('itinerary',this)">🗺 Itinerary</button>
+      <button class="nav-tab" onclick="showPage('calendar',this)">📅 Calendar</button>
+      <button class="nav-tab" onclick="showPage('budget',this)">💰 Budget</button>
+      <button class="nav-tab" onclick="showPage('map',this)">🌍 Map</button>
+      <button class="nav-tab" onclick="showPage('notes',this)">📋 Notes</button>
+    </nav>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="summary-bar">
+    <div class="summary-card"><div class="summary-label">Duration</div><div class="summary-value">90</div><div class="summary-sub">days total</div></div>
+    <div class="summary-card green"><div class="summary-label">Countries</div><div class="summary-value">4</div><div class="summary-sub">MX · GT · HN · PA</div></div>
+    <div class="summary-card blue"><div class="summary-label">CA-4 Days</div><div class="summary-value">~70</div><div class="summary-sub">of 90 allowed</div></div>
+    <div class="summary-card sand"><div class="summary-label">Budget/month</div><div class="summary-value">$3k</div><div class="summary-sub">combined (2 ppl)</div></div>
+    <div class="summary-card purple"><div class="summary-label">Stops</div><div class="summary-value">10</div><div class="summary-sub">destinations</div></div>
+  </div>
+
+  <!-- ============ ITINERARY ============ -->
+  <div id="page-itinerary" class="page active">
+    <div style="background:white;border-radius:10px;padding:12px 14px;box-shadow:var(--shadow);font-size:0.82rem;margin-bottom:14px;display:flex;gap:20px;flex-wrap:wrap;">
+      <div><span style="font-weight:600;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);">Flights</span></div>
+      <div>✈️ <strong>FRA → CUN</strong> <span style="color:var(--text-muted)">Frankfurt → Cancún</span></div>
+      <div>✈️ <strong>PTY → FRA</strong> <span style="color:var(--text-muted)">Panama City → Frankfurt</span></div>
+    </div>
+
+    <div class="accordion">
+
+      <!-- MEXICO -->
+      <div class="acc-country" id="acc-mexico">
+        <div class="acc-country-header" onclick="toggleCountry('acc-mexico')" style="background:#fde8d8;border-left-color:#e05c3a;">
+          <span class="acc-flag">🇲🇽</span>
+          <div class="acc-country-info">
+            <div class="acc-country-name">Mexico</div>
+            <div class="acc-country-meta">Cancún → Tulum → Palenque</div>
+            <div class="acc-country-visa" style="color:#e05c3a;">Visa-free · 180 days · No CA-4</div>
+          </div>
+          <span class="acc-days" style="color:#e05c3a;">19d</span>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-stops">
+
+          <div class="acc-stop" id="stop-cancun">
+            <div class="acc-stop-header" onclick="toggleStop('stop-cancun')">
+              <div class="acc-stop-num" style="background:#e05c3a;">01</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Cancún</div>
+                <div class="acc-stop-meta">📍 Quintana Roo · 4–5 days</div>
+              </div>
+              <span class="stop-badge badge-beach">Beach</span>
+              <span class="stop-badge badge-diving" style="margin-left:4px;">Snorkeling</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$40–60/night</div><div style="font-size:0.75rem;color:var(--text-muted)">Stay city center, not hotel zone</div></div>
+                <div><div class="info-label">Transport in</div><div class="info-value">✈️ Fly FRA → CUN</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">🚌 ADO bus to Tulum ~$8pp</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Isla Mujeres day trip — snorkeling & beach (~$25pp)</li>
+                <li>Cenote Dos Ojos — 2-tank dive ($60–80pp)</li>
+                <li>Adjust to heat, explore Mercado 28</li>
+              </ul>
+              <div class="stop-note"><strong>💡 Budget tip</strong>Stay in Centro and take local bus R1/R2 for $0.50 to beaches. Avoid the Zona Hotelera.</div>
+            </div>
+          </div>
+
+          <div class="acc-stop" id="stop-tulum">
+            <div class="acc-stop-header" onclick="toggleStop('stop-tulum')">
+              <div class="acc-stop-num" style="background:#e05c3a;">02</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Tulum</div>
+                <div class="acc-stop-meta">📍 Quintana Roo · 7–8 days</div>
+              </div>
+              <span class="stop-badge badge-diving">Cenote Diving</span>
+              <span class="stop-badge badge-culture" style="margin-left:4px;">Ruins</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$40–70/night</div><div style="font-size:0.75rem;color:var(--text-muted)">Stay in Tulum town, not beach road</div></div>
+                <div><div class="info-label">Transport in</div><div class="info-value">🚌 ADO from Cancún ~$8pp</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">🚌 ADO to Palenque $15–25pp</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Gran Cenote — snorkeling & cave dive ($15–20 entry)</li>
+                <li>Dos Ojos cenote system — world-class cave diving</li>
+                <li>Tulum ruins at sunrise (arrive before 9am!)</li>
+                <li>Rent bikes to explore — $5–10/day</li>
+              </ul>
+              <div class="stop-note"><strong>💡 Budget tip</strong>Beach road is $$$. Eat in Tulum town — excellent tacos for $1–2 each.</div>
+            </div>
+          </div>
+
+          <div class="acc-stop" id="stop-palenque">
+            <div class="acc-stop-header" onclick="toggleStop('stop-palenque')">
+              <div class="acc-stop-num" style="background:#e05c3a;">03</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Palenque</div>
+                <div class="acc-stop-meta">📍 Chiapas · 4–5 days</div>
+              </div>
+              <span class="stop-badge badge-culture">Mayan Ruins</span>
+              <span class="stop-badge badge-nature" style="margin-left:4px;">Jungle</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$25–45/night</div></div>
+                <div><div class="info-label">Transport in</div><div class="info-value">🚌 Night bus from Tulum ~$22pp</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">🚐 Shuttle to Flores ~$30pp</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Palenque ruins — arrive early for howler monkeys!</li>
+                <li>Misol-Ha & Agua Azul waterfalls day trip</li>
+                <li>Evening fireflies in the jungle</li>
+              </ul>
+              <div class="stop-note"><strong>💡 Border crossing</strong>Shuttle to Flores crosses at La Mesilla (~8 hrs). Book the day before at your hostel.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GUATEMALA -->
+      <div class="acc-country" id="acc-guatemala">
+        <div class="acc-country-header" onclick="toggleCountry('acc-guatemala')" style="background:#d8f0e0;border-left-color:#2a7a40;">
+          <span class="acc-flag">🇬🇹</span>
+          <div class="acc-country-info">
+            <div class="acc-country-name">Guatemala</div>
+            <div class="acc-country-meta">Flores/Tikal → Semuc Champey</div>
+            <div class="acc-country-visa" style="color:#2a7a40;">⚠️ CA-4 zone starts here · 90 days shared</div>
+          </div>
+          <span class="acc-days" style="color:#2a7a40;">12d</span>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-stops">
+
+          <div class="acc-stop" id="stop-flores">
+            <div class="acc-stop-header" onclick="toggleStop('stop-flores')">
+              <div class="acc-stop-num" style="background:#2a7a40;">04</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Flores / Tikal</div>
+                <div class="acc-stop-meta">📍 Petén · 5–6 days</div>
+              </div>
+              <span class="stop-badge badge-culture">Mayan Ruins</span>
+              <span class="stop-badge badge-nature" style="margin-left:4px;">Rainforest</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$25–45/night</div><div style="font-size:0.75rem;color:var(--text-muted)">Stay in Flores on the lake</div></div>
+                <div><div class="info-label">Transport in</div><div class="info-value">🚐 Shuttle from Palenque ~$30pp</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">🚌 Shuttle to Semuc Champey</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Tikal sunrise tour — pyramids above jungle canopy ($35–50pp)</li>
+                <li>Yaxhá ruins — far fewer tourists, great sunset</li>
+                <li>Kayak on Lake Petén Itzá</li>
+              </ul>
+              <div class="stop-note"><strong>💡 Tip</strong>Book Tikal tours in Flores — at least 30% cheaper than online.</div>
+            </div>
+          </div>
+
+          <div class="acc-stop" id="stop-semuc">
+            <div class="acc-stop-header" onclick="toggleStop('stop-semuc')">
+              <div class="acc-stop-num" style="background:#2a7a40;">05</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Semuc Champey</div>
+                <div class="acc-stop-meta">📍 Alta Verapaz · 5–6 days</div>
+              </div>
+              <span class="stop-badge badge-nature">Natural Pools</span>
+              <span class="stop-badge badge-nature" style="margin-left:4px;">Caves</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$20–35/night</div><div style="font-size:0.75rem;color:var(--text-muted)">Jungle lodges near the pools</div></div>
+                <div><div class="info-label">Transport in</div><div class="info-value">🚌 Shuttle from Flores ~5 hrs</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">🚐 Shuttle to Copán ~7 hrs</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>K'an Ba cave tour with candles ($10–15pp)</li>
+                <li>Swim the turquoise limestone pools</li>
+                <li>Mirador hike for the best view</li>
+                <li>River tubing</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- HONDURAS -->
+      <div class="acc-country" id="acc-honduras">
+        <div class="acc-country-header" onclick="toggleCountry('acc-honduras')" style="background:#d8eaf8;border-left-color:#0a7ea4;">
+          <span class="acc-flag">🇭🇳</span>
+          <div class="acc-country-info">
+            <div class="acc-country-name">Honduras</div>
+            <div class="acc-country-meta">Copán → La Ceiba → Utila → Roatán</div>
+            <div class="acc-country-visa" style="color:#0a7ea4;">⚠️ CA-4 continues · USD on Bay Islands</div>
+          </div>
+          <span class="acc-days" style="color:#0a7ea4;">35d</span>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-stops">
+
+          <div class="acc-stop" id="stop-copan">
+            <div class="acc-stop-header" onclick="toggleStop('stop-copan')">
+              <div class="acc-stop-num" style="background:#0a7ea4;">06</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Copán Ruinas</div>
+                <div class="acc-stop-meta">📍 Copán Dept · 3–4 days</div>
+              </div>
+              <span class="stop-badge badge-culture">Mayan Ruins</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$35–70/night</div></div>
+                <div><div class="info-label">Transport in</div><div class="info-value">🚐 Shuttle from Semuc ~$45pp</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">🚌 Hedman Alas to La Ceiba</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Copán ruins — hieroglyphic stairway ($15pp)</li>
+                <li>Macaw Mountain Bird Park — scarlet macaws!</li>
+                <li>Luna Jaguar hot springs (~$20pp)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="acc-stop" id="stop-ceiba">
+            <div class="acc-stop-header" onclick="toggleStop('stop-ceiba')">
+              <div class="acc-stop-num" style="background:#0a7ea4;">07</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">La Ceiba</div>
+                <div class="acc-stop-meta">📍 Atlántida · 2–3 days</div>
+              </div>
+              <span class="stop-badge badge-nature">Rainforest</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$25–45/night</div></div>
+                <div><div class="info-label">Transport in</div><div class="info-value">🚌 Hedman Alas from Copán ~$25pp</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">⛴ Galaxy Ferry to Utila $25–30pp</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Pico Bonito National Park — full day jungle hike</li>
+                <li>Cuero y Salado — manatees & monkeys</li>
+                <li>Cangrejal River whitewater rafting</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="acc-stop" id="stop-utila">
+            <div class="acc-stop-header" onclick="toggleStop('stop-utila')">
+              <div class="acc-stop-num" style="background:#0a7ea4;">08</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Utila</div>
+                <div class="acc-stop-meta">📍 Bay Islands · 10 days</div>
+              </div>
+              <span class="stop-badge badge-diving">Diving</span>
+              <span class="stop-badge badge-beach" style="margin-left:4px;">Island</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$25–45/night</div></div>
+                <div><div class="info-label">Diving</div><div class="info-value">$25–30/fun dive</div><div style="font-size:0.75rem;color:var(--text-muted)">Buy 10-dive package</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">⛴ Ferry to Roatán ~$35pp</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Multiple dives per day — buy a package deal</li>
+                <li>Whale shark dives (seasonal — ask locally)</li>
+                <li>Night dive — bioluminescent plankton</li>
+                <li>Explore by bicycle — island is tiny</li>
+              </ul>
+              <div class="stop-note"><strong>💡 Already PADI certified?</strong>Go straight to fun dives. 10-dive packages $250–270 incl. gear rental.</div>
+            </div>
+          </div>
+
+          <div class="acc-stop" id="stop-roatan">
+            <div class="acc-stop-header" onclick="toggleStop('stop-roatan')">
+              <div class="acc-stop-num" style="background:#0a7ea4;">09</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Roatán</div>
+                <div class="acc-stop-meta">📍 Bay Islands · 14 days</div>
+              </div>
+              <span class="stop-badge badge-diving">Diving</span>
+              <span class="stop-badge badge-beach" style="margin-left:4px;">Beach</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$50–90/night</div><div style="font-size:0.75rem;color:var(--text-muted)">West End — book weekly Airbnb</div></div>
+                <div><div class="info-label">Diving</div><div class="info-value">$35–45/fun dive</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">✈️ Fly RTB → PTY ~$150–250pp</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Mesoamerican Barrier Reef wall dives</li>
+                <li>Snorkeling at West Bay Beach (free from shore!)</li>
+                <li>Blue Channel & Mary's Place — top dive sites</li>
+                <li>Rent a scooter and explore the island ($25/day)</li>
+              </ul>
+              <div class="stop-note"><strong>⚠️ CA-4 watch</strong>Monitor your CA-4 days carefully. Flying to Panama resets everything.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PANAMA -->
+      <div class="acc-country" id="acc-panama">
+        <div class="acc-country-header" onclick="toggleCountry('acc-panama')" style="background:#ead8f8;border-left-color:#8b6fc0;">
+          <span class="acc-flag">🇵🇦</span>
+          <div class="acc-country-info">
+            <div class="acc-country-name">Panama</div>
+            <div class="acc-country-meta">Bocas del Toro → Panama City</div>
+            <div class="acc-country-visa" style="color:#8b6fc0;">Outside CA-4 · 90 days fresh</div>
+          </div>
+          <span class="acc-days" style="color:#8b6fc0;">10d</span>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-stops">
+
+          <div class="acc-stop" id="stop-bocas">
+            <div class="acc-stop-header" onclick="toggleStop('stop-bocas')">
+              <div class="acc-stop-num" style="background:#8b6fc0;">10</div>
+              <div class="acc-stop-title">
+                <div class="acc-stop-name">Bocas del Toro</div>
+                <div class="acc-stop-meta">📍 Panama · 10 days</div>
+              </div>
+              <span class="stop-badge badge-diving">Snorkeling</span>
+              <span class="stop-badge badge-nature" style="margin-left:4px;">Wildlife</span>
+              <span class="acc-stop-arrow" style="margin-left:8px;">▼</span>
+            </div>
+            <div class="acc-stop-body">
+              <div class="stop-grid">
+                <div><div class="info-label">Accommodation</div><div class="info-value">$40–70/night</div><div style="font-size:0.75rem;color:var(--text-muted)">Cabanas on the water</div></div>
+                <div><div class="info-label">Transport in</div><div class="info-value">✈️ Fly RTB→PTY, Air Panama to BOC</div></div>
+                <div><div class="info-label">Transport out</div><div class="info-value">✈️ Fly BOC → PTY → FRA</div></div>
+              </div>
+              <div class="info-label">Must-do Activities</div>
+              <ul class="info-list">
+                <li>Snorkeling at Coral Cay & Hospital Point</li>
+                <li>Sloth sanctuary — Red Frog Beach</li>
+                <li>Dolphin Bay — bottlenose dolphins guaranteed</li>
+                <li>Starfish Beach — crystal clear water</li>
+              </ul>
+              <div class="stop-note"><strong>💡 Final days</strong>Allow 2 nights in Panama City. Visit Casco Viejo and the Panama Canal.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ CALENDAR ============ -->
+  <div id="page-calendar" class="page">
+    <div style="background:white;border-radius:12px;box-shadow:var(--shadow);padding:16px;margin-bottom:18px;">
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px;font-weight:600;">📅 Adjust Start Date — See Price Impact</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <input type="date" id="start-date-input" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;" onchange="updateTripDate(this.value)">
+        <div id="season-badge" style="padding:6px 12px;border-radius:20px;font-size:0.8rem;font-weight:500;"></div>
+      </div>
+      <div id="price-impact" style="margin-top:12px;font-size:0.85rem;line-height:1.6;"></div>
+    </div>
+    <div class="calendar-layout">
+      <div class="calendar-months" id="calendar-months"></div>
+      <div class="cal-sidebar">
+        <div class="legend-card">
+          <div class="card-title">Legend</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fde8d8;border:1px solid #f0a080;"></div>Mexico</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#d8f0e0;border:1px solid #80c098;"></div>Guatemala</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#d8eaf8;border:1px solid #80b0d0;"></div>Honduras</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ead8f8;border:1px solid #b080d0;"></div>Panama</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f0f0e0;border:1px dashed #c0c080;"></div>Transit</div>
+        </div>
+        <div class="visa-card">
+          <div class="card-title">CA-4 Tracker</div>
+          <div class="visa-alert"><strong>⚠️ CA-4</strong> GT + HN share 90 days.</div>
+          <div class="visa-counter"><span>🇲🇽 Mexico</span><span class="visa-days ok">~20 / 180</span></div>
+          <div class="visa-counter"><span>🇬🇹 Guatemala</span><span class="visa-days ok">~12 days</span></div>
+          <div class="visa-counter"><span>🇭🇳 Honduras</span><span class="visa-days ok">~57 days</span></div>
+          <div class="visa-counter"><span>CA-4 Total</span><span class="visa-days warn">~70 / 90 ⚠️</span></div>
+          <div class="visa-counter"><span>🇵🇦 Panama</span><span class="visa-days ok">~10 / 90</span></div>
+        </div>
+        <div class="checklist-card">
+          <div class="card-title">Pre-trip Checklist</div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Book FRA → CUN flights</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Book PTY → FRA return</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Passport valid 6+ months</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Travel insurance (diving cover)</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>DAN membership</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Pack PADI cards</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Notify bank of travel</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Yellow fever vaccination</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Download offline maps</span></div>
+          <div class="checklist-item"><div class="check-box" onclick="toggleCheck(this)"></div><span>Book first night Cancún</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MAP ============ -->
+  <div id="page-map" class="page">
+    <div style="background:white;border-radius:12px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px;">
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Route — 10 Stops · 4 Countries</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:0.8rem;">
+        <span style="background:#fde8d8;padding:3px 10px;border-radius:12px;">🇲🇽 Mexico</span>
+        <span style="background:#d8f0e0;padding:3px 10px;border-radius:12px;">🇬🇹 Guatemala</span>
+        <span style="background:#d8eaf8;padding:3px 10px;border-radius:12px;">🇭🇳 Honduras</span>
+        <span style="background:#ead8f8;padding:3px 10px;border-radius:12px;">🇵🇦 Panama</span>
+      </div>
+    </div>
+    <div id="trip-map" style="height:65vh;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);"></div>
+    <div style="background:white;border-radius:12px;box-shadow:var(--shadow);padding:14px;margin-top:14px;">
+      <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;font-weight:600;">Stop List</div>
+      <div id="map-stop-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+
+  <!-- ============ BUDGET ============ -->
+  <div id="page-budget" class="page">
+    <div class="budget-card">
+      <div class="budget-card-header"><h3>✈️ Fixed Costs</h3><span class="budget-total" style="font-size:0.85rem;">edit to adjust</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);">
+        <div style="background:white;padding:14px;">
+          <div style="font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Flights (both people)</div>
+          <div style="display:flex;align-items:center;gap:6px;"><span style="color:var(--text-muted);">$</span><input type="number" id="fix-flights" value="2200" min="0" step="50" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:0.95rem;font-family:'DM Mono',monospace;" oninput="calcBudget()"></div>
+        </div>
+        <div style="background:white;padding:14px;">
+          <div style="font-size:0.7rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Misc (insurance, gear, SIMs)</div>
+          <div style="display:flex;align-items:center;gap:6px;"><span style="color:var(--text-muted);">$</span><input type="number" id="fix-misc" value="600" min="0" step="50" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:0.95rem;font-family:'DM Mono',monospace;" oninput="calcBudget()"></div>
+        </div>
+      </div>
+    </div>
+    <div class="budget-card">
+      <div class="budget-card-header"><h3>📍 Stops — Days & Daily Rates</h3><span class="budget-total" id="total-days-label" style="font-size:0.85rem;">0 days</span></div>
+      <div style="overflow-x:auto;">
+        <table class="budget-table">
+          <thead><tr><th>Destination</th><th style="text-align:center;">Days</th><th style="text-align:center;">🛏️/night</th><th style="text-align:center;">🍽️/day</th><th style="text-align:center;">🤿/day</th><th style="text-align:right;">Subtotal</th></tr></thead>
+          <tbody id="stops-tbody"></tbody>
+          <tfoot><tr style="background:var(--sand-light);font-weight:600;"><td colspan="5">Stop totals</td><td class="amount green" id="stops-total">$0</td></tr></tfoot>
+        </table>
+      </div>
+      <div style="padding:10px 16px;font-size:0.75rem;color:var(--text-muted);">CA-4 days: <span id="ca4-count" style="font-weight:600;color:var(--jungle);">0</span> / 90 &nbsp;·&nbsp; Total days: <span id="trip-days-count" style="font-weight:600;">0</span></div>
+    </div>
+    <div class="budget-card">
+      <div class="budget-card-header"><h3>💰 Grand Total</h3><span class="budget-total" id="grand-total-header">$0</span></div>
+      <div id="summary-rows" style="padding:4px 0;"></div>
+    </div>
+  </div>
+
+  <!-- ============ NOTES ============ -->
+  <div id="page-notes" class="page">
+    <div class="notes-layout">
+      <div class="notes-categories">
+        <button class="note-cat-btn active" onclick="showNoteSection('practical',this)">🛂 Visas & Entry</button>
+        <button class="note-cat-btn" onclick="showNoteSection('health',this)">💉 Health & Safety</button>
+        <button class="note-cat-btn" onclick="showNoteSection('diving',this)">🤿 Diving Info</button>
+        <button class="note-cat-btn" onclick="showNoteSection('money',this)">💵 Money & Banking</button>
+        <button class="note-cat-btn" onclick="showNoteSection('shared',this)">📝 Shared Notes</button>
+      </div>
+      <div class="notes-content">
+        <div id="section-practical" class="notes-section active">
+          <h2>Visas & Entry Requirements</h2>
+          <div class="info-cards-grid">
+            <div class="info-card"><h4>🇲🇽 Mexico</h4><div class="info-row"><span>Visa needed</span><span><span class="tag tag-ok">No visa</span></span></div><div class="info-row"><span>Max stay</span><span>180 days</span></div><div class="info-row"><span>CA-4?</span><span><span class="tag tag-ok">No — separate</span></span></div><div class="info-row"><span>Onward travel</span><span>Recommended</span></div></div>
+            <div class="info-card"><h4>🇬🇹 Guatemala</h4><div class="info-row"><span>Visa needed</span><span><span class="tag tag-ok">No visa</span></span></div><div class="info-row"><span>Max stay</span><span>90 days (CA-4)</span></div><div class="info-row"><span>CA-4?</span><span><span class="tag tag-warn">Yes — starts here!</span></span></div><div class="info-row"><span>Border</span><span>La Mesilla (from Chiapas)</span></div></div>
+            <div class="info-card"><h4>🇭🇳 Honduras</h4><div class="info-row"><span>Visa needed</span><span><span class="tag tag-ok">No visa</span></span></div><div class="info-row"><span>Max stay</span><span>90 days (CA-4)</span></div><div class="info-row"><span>CA-4?</span><span><span class="tag tag-warn">Yes — shared with GT</span></span></div><div class="info-row"><span>Border fee</span><span>~$3 per person</span></div></div>
+            <div class="info-card"><h4>🇵🇦 Panama</h4><div class="info-row"><span>Visa needed</span><span><span class="tag tag-ok">No visa</span></span></div><div class="info-row"><span>Max stay</span><span>90 days (fresh count)</span></div><div class="info-row"><span>CA-4?</span><span><span class="tag tag-ok">No — fully reset</span></span></div><div class="info-row"><span>Onward travel</span><span>Required at entry</span></div></div>
+          </div>
+          <div class="info-card" style="margin-top:16px;">
+            <h4>⚠️ CA-4 Strategy</h4>
+            <p style="font-size:0.875rem;line-height:1.7;">~12 days GT + ~57 days HN = ~69 days used, leaving ~21 day buffer. Flying from Roatán to Panama City fully exits CA-4. If you run over: cross into Belize for 1 night — it resets your counter.</p>
+          </div>
+        </div>
+        <div id="section-health" class="notes-section">
+          <h2>Health & Safety</h2>
+          <div class="info-cards-grid">
+            <div class="info-card"><h4>💉 Vaccinations</h4><div class="info-row"><span>Hepatitis A & B</span><span><span class="tag tag-warn">Recommended</span></span></div><div class="info-row"><span>Typhoid</span><span><span class="tag tag-warn">Recommended</span></span></div><div class="info-row"><span>Tetanus</span><span><span class="tag tag-warn">Check if current</span></span></div><div class="info-row"><span>Yellow Fever</span><span><span class="tag tag-info">Panama may require</span></span></div></div>
+            <div class="info-card"><h4>🦟 Mosquito & Water</h4><div class="info-row"><span>Malaria</span><span>Low risk — carry DEET</span></div><div class="info-row"><span>Dengue fever</span><span>Present — use repellent</span></div><div class="info-row"><span>Drinking water</span><span>Bottled only everywhere</span></div><div class="info-row"><span>Reef-safe suncream</span><span>Required for diving!</span></div></div>
+            <div class="info-card"><h4>🤿 Dive Safety</h4><div class="info-row"><span>DAN Insurance</span><span><span class="tag tag-warn">Get before you go</span></span></div><div class="info-row"><span>Chamber (Utila)</span><span>Fantasy Island, Roatán</span></div><div class="info-row"><span>Chamber (Roatán)</span><span>Anthony's Key Resort</span></div><div class="info-row"><span>No-fly after diving</span><span>18–24 hrs minimum</span></div></div>
+            <div class="info-card"><h4>🏥 Emergency Numbers</h4><div class="info-row"><span>Honduras</span><span>911</span></div><div class="info-row"><span>Guatemala</span><span>120 (Red Cross)</span></div><div class="info-row"><span>Panama</span><span>911</span></div><div class="info-row"><span>EHIC card</span><span>Not valid outside EU</span></div></div>
+          </div>
+        </div>
+        <div id="section-diving" class="notes-section">
+          <h2>Diving Information</h2>
+          <div class="info-cards-grid">
+            <div class="info-card"><h4>🐠 Tulum — Cenotes</h4><div class="info-row"><span>Type</span><span>Cave / cavern diving</span></div><div class="info-row"><span>Visibility</span><span>Up to 100m</span></div><div class="info-row"><span>Top sites</span><span>Dos Ojos, Gran Cenote</span></div><div class="info-row"><span>Price</span><span>$60–100pp / 2-tank</span></div></div>
+            <div class="info-card"><h4>🦈 Utila — Bay Islands</h4><div class="info-row"><span>Reef type</span><span>Mesoamerican Barrier Reef</span></div><div class="info-row"><span>Visibility</span><span>20–40m typical</span></div><div class="info-row"><span>Whale sharks</span><span>Mar–Apr & Oct–Nov</span></div><div class="info-row"><span>Fun dive</span><span>$25–30 (10-pack ~$250)</span></div></div>
+            <div class="info-card"><h4>🐠 Roatán — Bay Islands</h4><div class="info-row"><span>Visibility</span><span>30–40m typical</span></div><div class="info-row"><span>Fun dive</span><span>$35–45 (10-pack ~$350)</span></div><div class="info-row"><span>Top sites</span><span>Mary's Place, Blue Channel</span></div><div class="info-row"><span>Night dives</span><span>Available</span></div></div>
+            <div class="info-card"><h4>🐡 Bocas del Toro</h4><div class="info-row"><span>Type</span><span>Coral gardens & walls</span></div><div class="info-row"><span>Visibility</span><span>15–25m</span></div><div class="info-row"><span>Top snorkel</span><span>Coral Cay, Hospital Point</span></div><div class="info-row"><span>Best for</span><span>Snorkeling + relaxation</span></div></div>
+          </div>
+        </div>
+        <div id="section-money" class="notes-section">
+          <h2>Money & Banking</h2>
+          <div class="info-cards-grid">
+            <div class="info-card"><h4>💱 Currencies</h4><div class="info-row"><span>Mexico</span><span>Peso (MXN)</span></div><div class="info-row"><span>Guatemala</span><span>Quetzal (GTQ)</span></div><div class="info-row"><span>Honduras mainland</span><span>Lempira (HNL)</span></div><div class="info-row"><span>Bay Islands + Panama</span><span>USD</span></div></div>
+            <div class="info-card"><h4>🏧 ATM Tips</h4><div class="info-row"><span>Best card</span><span>N26 or DKB (no fees)</span></div><div class="info-row"><span>ATM fees</span><span>$3–6 per withdrawal</span></div><div class="info-row"><span>Safety</span><span>Use bank ATMs only</span></div><div class="info-row"><span>eSIM</span><span>Airalo app ~$12/30 days</span></div></div>
+          </div>
+        </div>
+        <div id="section-shared" class="notes-section">
+          <h2>Shared Notes & Planning</h2>
+          <div class="shared-notes-area"><h3>✏️ Planning Notes</h3><textarea class="big-textarea" placeholder="Add shared notes, decisions, task split..."></textarea></div>
+          <div class="shared-notes-area"><h3>🎒 Packing List</h3><textarea class="big-textarea" style="min-height:140px;" placeholder="PADI cards, dive mask, 3mm wetsuit, reef-safe sunscreen, dry bag, DEET..."></textarea></div>
+          <div class="shared-notes-area"><h3>🔖 Accommodation Wishlist</h3><textarea class="big-textarea" style="min-height:120px;" placeholder="Utila: Underwater Vision, Deep Blue Resort&#10;Roatán: Splash Inn, Bananarama&#10;Flores: Hotel Petén..."></textarea></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Navigation ──
+function showPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  btn.classList.add('active');
+  if (page === 'calendar') initCalendarPage();
+  if (page === 'map') initMap();
+}
+
+// ── Accordion ──
+function toggleCountry(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+function toggleStop(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+function toggleCheck(box) {
+  box.classList.toggle('checked');
+  box.textContent = box.classList.contains('checked') ? '✓' : '';
+}
+
+function showNoteSection(section, btn) {
+  document.querySelectorAll('.notes-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.note-cat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + section).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Calendar ──
+const seasons = [
+  { months:[11,0,1,2,3], label:'Peak Season (Dec–Apr)', badge:'#fce8c8', color:'#8b4a00', flights:'$1,300–1,600pp', accommodation:'+20–30%', overall:'~$3,400/month', note:'☀️ Best weather. Book islands well ahead — prices rise 20–30%.' },
+  { months:[4,5],        label:'Shoulder (May–Jun)',    badge:'#d8f0e0', color:'#1a5a30', flights:'$900–1,200pp',  accommodation:'Base',    overall:'~$2,800/month', note:'🌦 Some rain, fewer tourists. Good value.' },
+  { months:[6,7,8,9],   label:'Hurricane Season (Jul–Oct)', badge:'#d8eaf8', color:'#0a3a5a', flights:'$750–1,000pp', accommodation:'-15–25%', overall:'~$2,400/month', note:'🌧 Hurricane risk Aug–Oct. Best prices. Travel insurance essential.' },
+  { months:[10],         label:'Shoulder (Nov)',         badge:'#ead8f8', color:'#4a1a7a', flights:'$850–1,100pp',  accommodation:'Near-base', overall:'~$2,600/month', note:'🌤 Excellent timing — whale shark season on Utila!' },
+];
+let currentStart = new Date(2025, 11, 1);
+const schedule = [
+  [0,0,'✈️ FRA→CUN','ev-transit'],[1,5,'Cancún 🇲🇽','ev-mexico'],[6,13,'Tulum 🇲🇽','ev-mexico'],
+  [14,14,'🚌 Transit','ev-transit'],[15,19,'Palenque 🇲🇽','ev-mexico'],[20,20,'🚐 MX→GT','ev-transit'],
+  [21,26,'Flores 🇬🇹','ev-guatemala'],[27,31,'Semuc 🇬🇹','ev-guatemala'],[32,32,'🚐 GT→HN','ev-transit'],
+  [33,36,'Copán 🇭🇳','ev-honduras'],[37,39,'La Ceiba 🇭🇳','ev-honduras'],[40,40,'⛴ Utila','ev-transit'],
+  [41,50,'Utila 🇭🇳','ev-honduras'],[51,51,'⛴ Roatán','ev-transit'],[52,65,'Roatán 🇭🇳','ev-honduras'],
+  [66,67,'✈️ RTB→PTY','ev-transit'],[68,77,'Bocas 🇵🇦','ev-panama'],[78,79,'Panama City 🇵🇦','ev-panama'],[80,80,'✈️ PTY→FRA','ev-transit'],
+];
+
+function getSeason(d) { const m=d.getMonth(); return seasons.find(s=>s.months.includes(m))||seasons[1]; }
+
+function updateTripDate(val) {
+  if (!val) return;
+  currentStart = new Date(val + 'T12:00:00');
+  rebuildCalendar(); updatePriceImpact();
+}
+
+function updatePriceImpact() {
+  const s = getSeason(currentStart);
+  const badge = document.getElementById('season-badge');
+  const impact = document.getElementById('price-impact');
+  badge.style.cssText = `background:${s.badge};color:${s.color};padding:6px 12px;border-radius:20px;font-size:0.8rem;font-weight:500;`;
+  badge.textContent = s.label;
+  impact.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+    <div style="background:var(--sand-light);border-radius:8px;padding:10px;"><div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:2px;">Flights (pp)</div><div style="font-weight:600;font-size:0.85rem;">${s.flights}</div></div>
+    <div style="background:var(--sand-light);border-radius:8px;padding:10px;"><div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:2px;">Accommodation</div><div style="font-weight:600;font-size:0.85rem;">${s.accommodation}</div></div>
+    <div style="background:var(--sand-light);border-radius:8px;padding:10px;"><div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:2px;">Monthly budget</div><div style="font-weight:600;font-size:0.85rem;">${s.overall}</div></div>
+  </div><div style="background:${s.badge};color:${s.color};border-radius:8px;padding:10px;font-size:0.82rem;">${s.note}</div>`;
+}
+
+function initCalendarPage() {
+  const input = document.getElementById('start-date-input');
+  if (!input.value) { input.value = '2025-12-01'; currentStart = new Date(2025,11,1); }
+  rebuildCalendar(); updatePriceImpact();
+}
+
+function rebuildCalendar() {
+  const container = document.getElementById('calendar-months');
+  container.innerHTML = '';
+  const dayMap = {};
+  schedule.forEach(([start,end,label,cls]) => {
+    for (let d=start; d<=end; d++) { if(!dayMap[d]) dayMap[d]=[]; dayMap[d].push({label,cls}); }
+  });
+  for (let m=0; m<3; m++) {
+    const month=(currentStart.getMonth()+m)%12;
+    const year=currentStart.getFullYear()+Math.floor((currentStart.getMonth()+m)/12);
+    const monthName=new Date(year,month,1).toLocaleString('en-US',{month:'long',year:'numeric'});
+    const firstDOW=new Date(year,month,1).getDay();
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    let html=`<div class="month-block"><div class="month-header"><span class="month-name">${monthName}</span><span style="font-size:0.75rem;opacity:0.6;">Month ${m+1}</span></div><div class="cal-grid">`;
+    ['S','M','T','W','T','F','S'].forEach(d=>html+=`<div class="cal-dow">${d}</div>`);
+    for(let i=0;i<firstDOW;i++) html+=`<div class="cal-day empty"></div>`;
+    for(let day=1;day<=daysInMonth;day++){
+      const offset=Math.round((new Date(year,month,day)-currentStart)/86400000);
+      const events=dayMap[offset]||[];
+      html+=`<div class="cal-day"><div class="cal-day-num">${day}</div>`;
+      events.forEach(ev=>{ html+=`<div class="cal-event ${ev.cls}">${ev.label}</div>`; });
+      html+=`</div>`;
+    }
+    html+=`</div></div>`;
+    container.innerHTML+=html;
+  }
+}
+
+// ── Map ──
+const mapStops=[
+  {name:'Cancún',lat:21.16,lng:-86.85,country:'mx',order:1,desc:'Arrival · 5 days'},
+  {name:'Tulum',lat:20.21,lng:-87.46,country:'mx',order:2,desc:'Cenote diving · 8 days'},
+  {name:'Palenque',lat:17.51,lng:-91.99,country:'mx',order:3,desc:'Jungle ruins · 5 days'},
+  {name:'Flores/Tikal',lat:16.92,lng:-89.89,country:'gt',order:4,desc:'Tikal pyramids · 6 days'},
+  {name:'Semuc Champey',lat:15.53,lng:-89.96,country:'gt',order:5,desc:'Jungle pools · 5 days'},
+  {name:'Copán Ruinas',lat:14.84,lng:-89.16,country:'hn',order:6,desc:'Mayan carvings · 4 days'},
+  {name:'La Ceiba',lat:15.77,lng:-86.79,country:'hn',order:7,desc:'Rainforest gateway · 3 days'},
+  {name:'Utila',lat:16.09,lng:-86.93,country:'hn',order:8,desc:'🤿 Diving · 10 days'},
+  {name:'Roatán',lat:16.33,lng:-86.53,country:'hn',order:9,desc:'🤿 Reef diving · 14 days'},
+  {name:'Bocas del Toro',lat:9.34,lng:-82.24,country:'pa',order:10,desc:'Caribbean islands · 10 days'},
+];
+const cColors={mx:'#e05c3a',gt:'#2a7a40',hn:'#0a7ea4',pa:'#8b6fc0'};
+const cBg={mx:'#fde8d8',gt:'#d8f0e0',hn:'#d8eaf8',pa:'#ead8f8'};
+let mapInit=false;
+
+function initMap(){
+  if(mapInit) return; mapInit=true;
+  if(typeof L==='undefined'){
+    document.getElementById('trip-map').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px;color:var(--text-muted);"><div style="font-size:2rem;">🗺️</div><div style="font-size:0.9rem;">Map loads when online</div></div>';
+  } else {
+    const map=L.map('trip-map').setView([15,-87],5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(map);
+    L.polyline(mapStops.map(s=>[s.lat,s.lng]),{color:'#e05c3a',weight:2.5,opacity:0.7,dashArray:'6,5'}).addTo(map);
+    mapStops.forEach(s=>{
+      const icon=L.divIcon({className:'',html:`<div style="width:28px;height:28px;background:${cColors[s.country]};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${s.order}</div>`,iconSize:[28,28],iconAnchor:[14,14]});
+      L.marker([s.lat,s.lng],{icon}).addTo(map).bindPopup(`<strong>${s.name}</strong><br><span style="font-size:0.8rem;color:#666;">${s.desc}</span>`);
+    });
+  }
+  const list=document.getElementById('map-stop-list');
+  mapStops.forEach(s=>{
+    const div=document.createElement('div');
+    div.style.cssText=`display:flex;align-items:center;gap:10px;padding:8px 10px;background:${cBg[s.country]};border-radius:8px;`;
+    div.innerHTML=`<div style="width:24px;height:24px;background:${cColors[s.country]};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${s.order}</div><div><div style="font-weight:600;font-size:0.85rem;">${s.name}</div><div style="font-size:0.75rem;color:#666;">${s.desc}</div></div>`;
+    list.appendChild(div);
+  });
+}
+
+// ── Budget ──
+const stopData=[
+  {name:'Cancún',flag:'🇲🇽',ca4:false,days:5,accom:55,food:40,dive:0,transport:50},
+  {name:'Tulum',flag:'🇲🇽',ca4:false,days:8,accom:60,food:45,dive:30,transport:25},
+  {name:'Palenque',flag:'🇲🇽',ca4:false,days:5,accom:40,food:35,dive:0,transport:55},
+  {name:'Flores/Tikal',flag:'🇬🇹',ca4:true,days:6,accom:35,food:30,dive:0,transport:65},
+  {name:'Semuc Champey',flag:'🇬🇹',ca4:true,days:5,accom:30,food:28,dive:0,transport:40},
+  {name:'Copán Ruinas',flag:'🇭🇳',ca4:true,days:4,accom:55,food:32,dive:0,transport:50},
+  {name:'La Ceiba',flag:'🇭🇳',ca4:true,days:3,accom:40,food:30,dive:0,transport:60},
+  {name:'Utila',flag:'🇭🇳',ca4:true,days:10,accom:40,food:35,dive:28,transport:55},
+  {name:'Roatán',flag:'🇭🇳',ca4:true,days:14,accom:70,food:45,dive:40,transport:40},
+  {name:'Bocas del Toro',flag:'🇵🇦',ca4:false,days:10,accom:55,food:40,dive:15,transport:120},
+];
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+
+function buildStopsTable(){
+  const tbody=document.getElementById('stops-tbody');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  stopData.forEach((s,i)=>{
+    const sub=s.days*(s.accom+s.food+s.dive)+s.transport;
+    const ca4tag=s.ca4?`<span style="font-size:0.6rem;background:#fce8c0;color:#8b4a00;padding:1px 5px;border-radius:8px;margin-left:3px;">CA-4</span>`:'';
+    tbody.innerHTML+=`<tr style="border-bottom:1px solid var(--border);">
+      <td style="font-size:0.8rem;padding:8px;">${s.flag} ${s.name}${ca4tag}</td>
+      <td style="padding:5px 3px;text-align:center;"><div style="display:flex;align-items:center;justify-content:center;gap:3px;">
+        <button onclick="adjDays(${i},-1)" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:white;cursor:pointer;">−</button>
+        <span id="days-${i}" style="font-family:'DM Mono',monospace;font-size:0.88rem;min-width:20px;text-align:center;">${s.days}</span>
+        <button onclick="adjDays(${i},1)" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:white;cursor:pointer;">+</button>
+      </div></td>
+      <td style="padding:5px 3px;text-align:center;"><input type="number" value="${s.accom}" min="0" step="5" data-i="${i}" data-f="accom" style="width:52px;border:1px solid var(--border);border-radius:5px;padding:4px;font-size:0.78rem;font-family:'DM Mono',monospace;text-align:center;" oninput="updateField(this)"></td>
+      <td style="padding:5px 3px;text-align:center;"><input type="number" value="${s.food}" min="0" step="5" data-i="${i}" data-f="food" style="width:48px;border:1px solid var(--border);border-radius:5px;padding:4px;font-size:0.78rem;font-family:'DM Mono',monospace;text-align:center;" oninput="updateField(this)"></td>
+      <td style="padding:5px 3px;text-align:center;"><input type="number" value="${s.dive}" min="0" step="5" data-i="${i}" data-f="dive" style="width:48px;border:1px solid var(--border);border-radius:5px;padding:4px;font-size:0.78rem;font-family:'DM Mono',monospace;text-align:center;" oninput="updateField(this)"></td>
+      <td style="padding:5px 8px;text-align:right;">
+        <div id="sub-${i}" style="font-family:'DM Mono',monospace;font-size:0.82rem;font-weight:600;">${fmt(sub)}</div>
+        <div style="margin-top:3px;background:#f0ebe0;border-radius:3px;height:3px;overflow:hidden;"><div id="bar-${i}" style="height:100%;background:var(--coral);border-radius:3px;width:${Math.min(100,sub/25)}%;"></div></div>
+      </td></tr>`;
+  });
+  calcBudget();
+}
+
+function adjDays(i,d){ stopData[i].days=Math.max(1,stopData[i].days+d); document.getElementById('days-'+i).textContent=stopData[i].days; updateRow(i); calcBudget(); }
+function updateField(el){ stopData[+el.dataset.i][el.dataset.f]=+el.value||0; updateRow(+el.dataset.i); calcBudget(); }
+function updateRow(i){ const s=stopData[i]; const sub=s.days*(s.accom+s.food+s.dive)+s.transport; document.getElementById('sub-'+i).textContent=fmt(sub); document.getElementById('bar-'+i).style.width=Math.min(100,sub/25)+'%'; }
+
+function calcBudget(){
+  let stopTotal=0,totalDays=0,ca4Days=0,accomT=0,foodT=0,diveT=0,transT=0;
+  stopData.forEach(s=>{ const sub=s.days*(s.accom+s.food+s.dive)+s.transport; stopTotal+=sub; totalDays+=s.days; if(s.ca4) ca4Days+=s.days; accomT+=s.days*s.accom; foodT+=s.days*s.food; diveT+=s.days*s.dive; transT+=s.transport; });
+  const flights=+(document.getElementById('fix-flights')||{}).value||0;
+  const misc=+(document.getElementById('fix-misc')||{}).value||0;
+  const grand=stopTotal+flights+misc;
+  const perPerson=grand/2;
+  const perMonth=totalDays>0?((accomT+foodT+diveT)/totalDays)*30:0;
+  const el=id=>document.getElementById(id);
+  if(el('stops-total')) el('stops-total').textContent=fmt(stopTotal);
+  if(el('grand-total-header')) el('grand-total-header').textContent=fmt(grand);
+  if(el('total-days-label')) el('total-days-label').textContent=totalDays+' days';
+  if(el('trip-days-count')) el('trip-days-count').textContent=totalDays;
+  if(el('ca4-count')){ el('ca4-count').textContent=ca4Days; el('ca4-count').style.color=ca4Days>85?'#c04010':ca4Days>75?'#c07010':'var(--jungle)'; }
+  const rows=[['🛏️ Accommodation',fmt(accomT)],['🍽️ Food & drink',fmt(foodT)],['🤿 Diving',fmt(diveT)],['🚌 Transport',fmt(transT)],['✈️ Flights',fmt(flights)],['📦 Misc fixed',fmt(misc)]];
+  if(el('summary-rows')) el('summary-rows').innerHTML=rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border);font-size:0.875rem;"><span>${k}</span><span style="font-family:'DM Mono',monospace;font-weight:500;">${v}</span></div>`).join('')+
+    `<div style="display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:1rem;color:var(--coral);background:#fff8e0;"><span>Grand Total (2 ppl)</span><span style="font-family:'DM Mono',monospace;">${fmt(grand)}</span></div>
+     <div style="display:flex;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border);font-weight:600;color:#2a7a40;background:var(--sand-light);font-size:0.9rem;"><span>Per person</span><span style="font-family:'DM Mono',monospace;">${fmt(perPerson)}</span></div>
+     <div style="display:flex;justify-content:space-between;padding:9px 16px;font-weight:600;color:#2a7a40;background:var(--sand-light);font-size:0.9rem;"><div><span>Ground cost / month</span><div style="font-size:0.65rem;font-weight:400;">(accom+food+diving) ÷ days × 30</div></div><span style="font-family:'DM Mono',monospace;">${fmt(perMonth)}</span></div>`;
+}
+
+document.addEventListener('DOMContentLoaded', buildStopsTable);
+</script>
+</body>
+</html>
