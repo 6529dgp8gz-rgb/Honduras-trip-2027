@@ -2114,8 +2114,8 @@ function showBudgetInfoModal() {
 
 
 // Close modals on backdrop click
-document.getElementById('day-modal').addEventListener('click', function(e){ if(e.target===this) closeDayModal(); });
-document.getElementById('edit-modal').addEventListener('click', function(e){ if(e.target===this) closeEditModal(); });
+const _dm = document.getElementById('day-modal'); if (_dm) _dm.addEventListener('click', function(e){ if(e.target===this) closeDayModal(); });
+const _em = document.getElementById('edit-modal'); if (_em) _em.addEventListener('click', function(e){ if(e.target===this) closeEditModal(); });
 
 // ── Flights ──
 const flightData = { out: [], ret: [] };
@@ -2241,7 +2241,7 @@ function updateFlightSummary() {
   setCard('fl-best-ret-val','fl-best-ret-sub', best('ret'));
 }
 
-document.getElementById('fl-modal').addEventListener('click', function(e){ if(e.target===this) closeFlightModal(); });
+const _fm = document.getElementById('fl-modal'); if (_fm) _fm.addEventListener('click', function(e){ if(e.target===this) closeFlightModal(); });
 
 
 // ── Route Comparison ──
