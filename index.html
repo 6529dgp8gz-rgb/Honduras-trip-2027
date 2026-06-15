@@ -862,10 +862,10 @@
     </div>
 
     <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
-      <button id="rtab-A" onclick="showRoute('A')" style="padding:8px 14px;border-radius:20px;border:none;background:var(--coral);color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">A — Current</button>
-      <button id="rtab-B" onclick="showRoute('B')" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">B — More Countries</button>
-      <button id="rtab-C" onclick="showRoute('C')" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">C — Best of Both</button>
-      <button id="rtab-D" onclick="showRoute('D')" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">D — Lean &amp; Rich ⭐</button>
+      <button id="rtab-A" data-route="A" style="padding:8px 14px;border-radius:20px;border:none;background:var(--coral);color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">A — Current</button>
+      <button id="rtab-B" data-route="B" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">B — More Countries</button>
+      <button id="rtab-C" data-route="C" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">C — Best of Both</button>
+      <button id="rtab-D" data-route="D" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">D — Lean &amp; Rich ⭐</button>
     </div>
 
     <div id="route-detail" style="margin-bottom:16px;"></div>
@@ -1309,6 +1309,7 @@ function showPage(page, btn) {
   btn.classList.add('active');
   if (page === 'calendar') initCalendarPage();
   if (page === 'map') initMap();
+  if (page === 'compare') { if (typeof showRoute === 'function') showRoute(window._activeRoute || 'D'); }
 }
 
 function showCountry(country, btn) {
@@ -2333,6 +2334,7 @@ const rTypeColors = { diving:'#0a7ea4', beach:'#c07a10', culture:'#8b4a10', natu
 const rTypeEmoji  = { diving:'\U0001f93f', beach:'\U0001f3d6', culture:'\U0001f3db', nature:'\U0001f33f' };
 
 function showRoute(key) {
+  window._activeRoute = key;
   const r = routes[key];
   ['A','B','C','D'].forEach(k => {
     const btn = document.getElementById('rtab-'+k);
@@ -2405,7 +2407,12 @@ function loadRouteIntoApp(key) {
 }
 
 // Init compare with Route D selected (the recommended one)
-document.addEventListener('DOMContentLoaded', () => { showRoute('D'); });
+document.addEventListener('DOMContentLoaded', () => {
+  showRoute('D');
+  document.querySelectorAll('[data-route]').forEach(btn => {
+    btn.addEventListener('click', () => showRoute(btn.dataset.route));
+  });
+});
 
 </script>
 
