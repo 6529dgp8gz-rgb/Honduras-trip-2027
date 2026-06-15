@@ -862,10 +862,10 @@
     </div>
 
     <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
-      <button id="rtab-A" data-route="A" style="padding:8px 14px;border-radius:20px;border:none;background:var(--coral);color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">A — Current</button>
-      <button id="rtab-B" data-route="B" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">B — More Countries</button>
-      <button id="rtab-C" data-route="C" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">C — Best of Both</button>
-      <button id="rtab-D" data-route="D" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">D — Lean &amp; Rich ⭐</button>
+      <button id="rtab-A" data-route="A" onclick="showRoute('A')" style="padding:8px 14px;border-radius:20px;border:none;background:var(--coral);color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">A — Current</button>
+      <button id="rtab-B" data-route="B" onclick="showRoute('B')" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">B — More Countries</button>
+      <button id="rtab-C" data-route="C" onclick="showRoute('C')" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">C — Best of Both</button>
+      <button id="rtab-D" data-route="D" onclick="showRoute('D')" style="padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:white;color:var(--text);font-family:inherit;font-size:0.78rem;cursor:pointer;">D — Lean &amp; Rich ⭐</button>
     </div>
 
     <div id="route-detail" style="margin-bottom:16px;"></div>
@@ -2408,10 +2408,7 @@ function loadRouteIntoApp(key) {
 
 // Init compare with Route D selected (the recommended one)
 document.addEventListener('DOMContentLoaded', () => {
-  showRoute('D');
-  document.querySelectorAll('[data-route]').forEach(btn => {
-    btn.addEventListener('click', () => showRoute(btn.dataset.route));
-  });
+  try { showRoute('D'); } catch(e) { console.warn('showRoute init error:', e); }
 });
 
 </script>
