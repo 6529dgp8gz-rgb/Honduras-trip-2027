@@ -456,11 +456,10 @@
 
 <!-- More drawer -->
 <div id="more-drawer" style="display:none;position:fixed;bottom:calc(56px + env(safe-area-inset-bottom));left:0;right:0;z-index:199;background:var(--surface);border-top:1px solid var(--border);padding:6px 8px 10px;">
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
     <button onclick="showPageFromMore('flights')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:none;background:var(--surface-2);border-radius:10px;color:var(--text-muted);font-family:'Inter',-apple-system,sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;"><i class="ti ti-plane" style="font-size:22px;color:var(--text);" aria-hidden="true"></i>Flights</button>
     <button onclick="showPageFromMore('compare')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:none;background:var(--surface-2);border-radius:10px;color:var(--text-muted);font-family:'Inter',-apple-system,sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;"><i class="ti ti-git-compare" style="font-size:22px;color:var(--text);" aria-hidden="true"></i>Compare</button>
     <button onclick="showPageFromMore('notes')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:none;background:var(--surface-2);border-radius:10px;color:var(--text-muted);font-family:'Inter',-apple-system,sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;"><i class="ti ti-notes" style="font-size:22px;color:var(--text);" aria-hidden="true"></i>Notes</button>
-    <button onclick="showPageFromMore('map')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:none;background:var(--surface-2);border-radius:10px;color:var(--text-muted);font-family:'Inter',-apple-system,sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;"><i class="ti ti-map-pin" style="font-size:22px;color:var(--text);" aria-hidden="true"></i>Map</button>
   </div>
 </div>
 
@@ -1163,7 +1162,7 @@ function showPage(page, btn) {
   if (btn) btn.classList.add('active');
   closeMoreDrawer();
   if (page === 'calendar') initCalendarPage();
-  if (page === 'map') initMap();
+  if (page === 'map') { mapInitialized = false; initMap(); }
   if (page === 'compare') { if (typeof showRoute === 'function') showRoute(window._activeRoute || 'D'); }
 }
 
@@ -1407,60 +1406,94 @@ function updateStopTimeline(stopDates) {
 }
 
 // ── Map ──
-const stops = [
-  { name: 'Cancún', lat: 21.16, lng: -86.85, country: 'mx', order: 1, desc: 'Arrival · 5 days · Snorkeling, Isla Mujeres' },
-  { name: 'Tulum', lat: 20.21, lng: -87.46, country: 'mx', order: 2, desc: 'Cenote diving, Mayan ruins · 8 days' },
-  { name: 'Palenque', lat: 17.51, lng: -91.99, country: 'mx', order: 3, desc: 'Jungle Mayan ruins · 5 days' },
-  { name: 'Flores / Tikal', lat: 16.92, lng: -89.89, country: 'gt', order: 4, desc: 'Tikal pyramids, lake · 6 days' },
-  { name: 'Semuc Champey', lat: 15.53, lng: -89.96, country: 'gt', order: 5, desc: 'Turquoise jungle pools · 5 days' },
-  { name: 'Copán Ruinas', lat: 14.84, lng: -89.16, country: 'hn', order: 6, desc: 'Mayan carvings · 4 days' },
-  { name: 'La Ceiba', lat: 15.77, lng: -86.79, country: 'hn', order: 7, desc: 'Rainforest, Pico Bonito · 3 days' },
-  { name: 'Utila', lat: 16.09, lng: -86.93, country: 'hn', order: 8, desc: '🤿 Diving paradise · 10 days' },
-  { name: 'Roatán', lat: 16.33, lng: -86.53, country: 'hn', order: 9, desc: '🤿 Barrier reef diving · 14 days' },
-  { name: 'Bocas del Toro', lat: 9.34, lng: -82.24, country: 'pa', order: 10, desc: 'Caribbean islands, sloths · 10 days' },
-];
+// ── Coordinates lookup for all possible stop names ──
+const stopCoords = {
+  'Cancún':              { lat: 21.16,  lng: -86.85,  country: 'mx' },
+  'Tulum':               { lat: 20.21,  lng: -87.46,  country: 'mx' },
+  'Cancún & Tulum':      { lat: 20.70,  lng: -87.10,  country: 'mx' },
+  'Palenque':            { lat: 17.51,  lng: -91.99,  country: 'mx' },
+  'Flores / Tikal':      { lat: 16.92,  lng: -89.89,  country: 'gt' },
+  'Flores/Tikal':        { lat: 16.92,  lng: -89.89,  country: 'gt' },
+  'Semuc Champey':       { lat: 15.53,  lng: -89.96,  country: 'gt' },
+  'Antigua + Acatenango':{ lat: 14.56,  lng: -90.73,  country: 'gt' },
+  'Lake Atitlán':        { lat: 14.69,  lng: -91.21,  country: 'gt' },
+  'Copán Ruinas':        { lat: 14.84,  lng: -89.16,  country: 'hn' },
+  'Copán + La Ceiba':    { lat: 15.31,  lng: -87.98,  country: 'hn' },
+  'La Ceiba':            { lat: 15.77,  lng: -86.79,  country: 'hn' },
+  'Utila':               { lat: 16.09,  lng: -86.93,  country: 'hn' },
+  'Roatán':              { lat: 16.33,  lng: -86.53,  country: 'hn' },
+  'Belize — Caye Caulker':{ lat: 17.73, lng: -88.03,  country: 'bz' },
+  'Belize':              { lat: 17.25,  lng: -88.77,  country: 'bz' },
+  'El Salvador':         { lat: 13.79,  lng: -88.90,  country: 'sv' },
+  'El Salvador Coast':   { lat: 13.51,  lng: -89.37,  country: 'sv' },
+  'Ometepe Island':      { lat: 11.51,  lng: -85.58,  country: 'ni' },
+  'Granada + Masaya':    { lat: 11.93,  lng: -86.00,  country: 'ni' },
+  'Granada + León':      { lat: 12.43,  lng: -86.49,  country: 'ni' },
+  'León':                { lat: 12.44,  lng: -86.88,  country: 'ni' },
+  'San Juan del Sur':    { lat: 11.25,  lng: -85.87,  country: 'ni' },
+  'Bocas del Toro':      { lat:  9.34,  lng: -82.24,  country: 'pa' },
+};
 
-const countryColors = { mx: '#e05c3a', gt: '#2a7a40', hn: '#0a7ea4', pa: '#8b6fc0' };
-const countryBg = { mx: 'rgba(52,80,138,0.25)', gt: 'rgba(52,80,138,0.35)', hn: 'rgba(52,80,138,0.5)', pa: 'rgba(22,38,64,0.85)' };
+const countryColors = { mx:'#6a7aA8', gt:'#5a6a98', hn:'#4a5a88', bz:'#3a4a78', sv:'#5a6a98', ni:'#4a5a88', pa:'#34508A' };
 
 let mapInitialized = false;
-function initMap() {
-  if (mapInitialized) return;
-  mapInitialized = true;
+let leafletMap = null;
 
-  // Build stop list regardless of Leaflet
+function buildMapStops() {
+  return stopData.map((s, i) => {
+    const geo = stopCoords[s.name];
+    if (!geo) return null;
+    return { name: s.name, lat: geo.lat, lng: geo.lng, country: geo.country, order: i + 1, days: s.days, flag: s.flag };
+  }).filter(Boolean);
+}
+
+function initMap() {
+  const mapStops = buildMapStops();
+
+  // Build sidebar stop list
   const list = document.getElementById('map-stop-list');
   if (list) {
-    stops.forEach(s => {
+    list.innerHTML = '';
+    mapStops.forEach(s => {
       const div = document.createElement('div');
-      div.style.cssText = `display:flex;align-items:center;gap:10px;padding:8px 10px;background:${countryBg[s.country]};border-radius:8px;`;
-      div.innerHTML = `<div style="width:24px;height:24px;background:${countryColors[s.country]};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${s.order}</div><div><div style="font-weight:600;font-size:0.85rem;">${s.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${s.desc}</div></div>`;
+      div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--surface-2);border-radius:8px;margin-bottom:5px;border:1px solid var(--border);';
+      div.innerHTML = `<div style="width:24px;height:24px;background:var(--c3);color:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${s.order}</div><div><div style="font-weight:600;font-size:0.85rem;">${s.flag} ${s.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${s.days} days</div></div>`;
       list.appendChild(div);
     });
   }
 
-  // Only init Leaflet map if library loaded
   if (typeof L === 'undefined') return;
 
-  const map = L.map('trip-map', { zoomControl: true }).setView([15, -87], 5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors', maxZoom: 18
-  }).addTo(map);
+  // Destroy and re-init map so it reflects current stopData
+  const container = document.getElementById('trip-map');
+  if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+  if (container._leaflet_id) delete container._leaflet_id;
 
-  const coords = stops.map(s => [s.lat, s.lng]);
-  L.polyline(coords, { color: '#e05c3a', weight: 2.5, opacity: 0.7, dashArray: '6,5' }).addTo(map);
+  const centerLat = mapStops.reduce((a, s) => a + s.lat, 0) / (mapStops.length || 1);
+  const centerLng = mapStops.reduce((a, s) => a + s.lng, 0) / (mapStops.length || 1);
+  leafletMap = L.map('trip-map', { zoomControl: true }).setView([centerLat, centerLng], 5);
 
-  stops.forEach(s => {
-    const color = countryColors[s.country];
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', maxZoom: 19
+  }).addTo(leafletMap);
+
+  if (mapStops.length > 1) {
+    const coords = mapStops.map(s => [s.lat, s.lng]);
+    L.polyline(coords, { color: '#F4C24F', weight: 2, opacity: 0.5, dashArray: '5,6' }).addTo(leafletMap);
+  }
+
+  mapStops.forEach(s => {
     const icon = L.divIcon({
       className: '',
-      html: `<div style="width:28px;height:28px;background:${color};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${s.order}</div>`,
-      iconSize: [28, 28], iconAnchor: [14, 14]
+      html: `<div style="width:26px;height:26px;background:#34508A;color:#d0d8ea;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid rgba(244,194,79,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.5);">${s.order}</div>`,
+      iconSize: [26, 26], iconAnchor: [13, 13]
     });
     L.marker([s.lat, s.lng], { icon })
-      .addTo(map)
-      .bindPopup(`<strong>${s.name}</strong><br><span style="font-size:0.82rem;color:var(--text-muted);">${s.desc}</span>`);
+      .addTo(leafletMap)
+      .bindPopup(`<strong>${s.flag} ${s.name}</strong><br><span style="font-size:0.8rem;color:#888;">${s.days} days</span>`);
   });
+
+  mapInitialized = true;
 }
 
 // ── Budget Planner ──
@@ -1818,13 +1851,13 @@ function moveStop(i, dir) {
   const j = i + dir;
   if (j < 0 || j >= stopData.length) return;
   [stopData[i], stopData[j]] = [stopData[j], stopData[i]];
-  renderEditList(); buildStopsTable(); buildItineraryAccordion(); rebuildCalendar(); calcBudget();
+  renderEditList(); buildStopsTable(); buildItineraryAccordion(); rebuildCalendar(); calcBudget(); mapInitialized = false;
 }
 
 function removeStop(i) {
   if (stopData.length <= 1) return alert('Trip must have at least one stop.');
   stopData.splice(i, 1);
-  renderEditList(); buildStopsTable(); buildItineraryAccordion(); rebuildCalendar(); calcBudget();
+  renderEditList(); buildStopsTable(); buildItineraryAccordion(); rebuildCalendar(); calcBudget(); mapInitialized = false;
 }
 
 function addNewStop() {
@@ -1842,7 +1875,7 @@ function addNewStop() {
     transport: 50
   });
   document.getElementById('new-stop-name').value = '';
-  renderEditList(); buildStopsTable(); buildItineraryAccordion(); rebuildCalendar(); calcBudget();
+  renderEditList(); buildStopsTable(); buildItineraryAccordion(); rebuildCalendar(); calcBudget(); mapInitialized = false;
 }
 
 // Close modals on backdrop click — wrapped in DOMContentLoaded so elements exist
