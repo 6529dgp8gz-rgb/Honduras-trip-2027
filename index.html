@@ -1939,66 +1939,59 @@ function buildItineraryAccordion() {
   if (!acc) return;
   acc.innerHTML = '';
 
-  // Group consecutive stops by country
-  const groups = [];
-  stopData.forEach(s => {
-    const last = groups[groups.length-1];
-    if (last && last.flag === s.flag) last.stops.push(s);
-    else groups.push({ flag: s.flag, stops: [s] });
+  let currentFlag = null;
+
+  stopData.forEach((s, i) => {
+    const meta = countryMeta[s.flag] || { name: s.flag, info: '', color: 'var(--c3)', bg: 'var(--surface-2)' };
+
+    // Country divider when flag changes
+    if (s.flag !== currentFlag) {
+      currentFlag = s.flag;
+      const divider = document.createElement('div');
+      divider.style.cssText = 'display:flex;align-items:center;gap:10px;padding:14px 4px 6px;';
+      divider.innerHTML =
+        '<span style="font-size:1.1rem;">' + s.flag + '</span>' +
+        '<span style="font-size:0.72rem;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.08em;">' + meta.name + '</span>' +
+        '<span style="font-size:0.7rem;color:var(--text-dim);margin-left:6px;">' + meta.info + '</span>' +
+        '<div style="flex:1;height:1px;background:var(--border);margin-left:8px;"></div>';
+      acc.appendChild(divider);
+    }
+
+    // Stop card
+    const d = stopDetails[s.name] || { notes: '', activities: [] };
+    const inlineId = 'inline-stop-' + i;
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:6px;overflow:hidden;';
+
+    const activitiesHTML = d.activities.length
+      ? '<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 7px;font-weight:600;">Activities</div>' +
+        '<ul style="list-style:none;">' + d.activities.map(function(a) {
+          return '<li style="font-size:0.83rem;padding:5px 0 5px 14px;position:relative;border-bottom:1px solid var(--border);color:var(--text);"><span style="position:absolute;left:0;color:var(--c3);">›</span>' + a + '</li>';
+        }).join('') + '</ul>'
+      : '';
+
+    const notesHTML = d.notes
+      ? '<div style="margin-top:10px;background:var(--surface-2);border-radius:7px;padding:10px 12px;font-size:0.82rem;color:var(--text-muted);border-left:2px solid var(--c3);">' + d.notes + '</div>'
+      : '';
+
+    card.innerHTML =
+      '<div onclick="toggleStopInline(\'' + inlineId + '\')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;">' +
+        '<div style="width:26px;height:26px;background:var(--c3);color:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">' + (i + 1) + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;font-size:0.92rem;color:var(--text);">' + s.name + '</div>' +
+          '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">' + s.days + ' days · $' + s.accom + '/night · $' + s.food + '/day food' + (s.dive ? ' · $' + s.dive + '/day dive' : '') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' +
+          '<div style="font-size:0.85rem;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;">' + s.days + 'd</div>' +
+          '<div id="arr-' + inlineId + '" style="font-size:0.65rem;color:var(--text-dim);transition:transform 0.2s;">▼</div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="' + inlineId + '" style="display:none;padding:0 14px 14px;border-top:1px solid var(--border);">' +
+        activitiesHTML + notesHTML +
+      '</div>';
+
+    acc.appendChild(card);
   });
-
-  groups.forEach((g, gi) => {
-    const meta = countryMeta[g.flag] || { name:g.flag, info:'', color:'#888', bg:'#f5f5f5' };
-    const totalDays = g.stops.reduce((a,s)=>a+s.days,0);
-    const stopNames = g.stops.map(s=>s.name.split('/')[0]).join(' → ');
-    const groupId = 'group-'+gi;
-
-    const div = document.createElement('div');
-    div.style.cssText = 'border-radius:12px;overflow:hidden;box-shadow:var(--shadow);';
-    div.innerHTML = `
-      <div onclick="toggleGroup('${groupId}')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:${meta.bg};cursor:pointer;border-left:4px solid ${meta.color};">
-        <span style="font-size:1.6rem;">${g.flag}</span>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:0.95rem;">${meta.name}</div>
-          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:1px;">${stopNames}</div>
-          <div style="font-size:0.72rem;color:${meta.color};margin-top:1px;">${meta.info}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:700;font-size:0.9rem;color:${meta.color};">${totalDays}d</div>
-          <div id="arrow-${groupId}" style="font-size:0.75rem;color:#999;transition:transform 0.2s;">▼</div>
-        </div>
-      </div>
-      <div id="${groupId}" style="display:none;background:var(--surface);">
-        ${g.stops.map((s, si) => {
-          const d = stopDetails[s.name] || { notes:'', activities:[] };
-          const globalIdx = stopData.indexOf(s);
-          return `
-            <div style="border-bottom:1px solid var(--border);padding:14px 16px;">
-              <div onclick="toggleStopInline('inline-${groupId}-${si}')" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-                <div style="width:28px;height:28px;background:${meta.color};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${globalIdx+1}</div>
-                <div style="flex:1;">
-                  <div style="font-weight:600;font-size:0.92rem;">${s.name}</div>
-                  <div style="font-size:0.75rem;color:#888;">${s.days} nights · $${s.accom}/night · $${s.food}/day food${s.dive ? ' · $' + s.dive + '/day dive' : ''}</div>
-                </div>
-                <div id="arr-inline-${groupId}-${si}" style="font-size:0.75rem;color:#aaa;">▼</div>
-              </div>
-              <div id="inline-${groupId}-${si}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);">
-                ${d.activities.length ? `<div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Activities</div>
-                <ul id="acts-${groupId}-${si}" style="list-style:none;margin-bottom:12px;">${d.activities.map(a=>`<li style="font-size:0.84rem;padding:3px 0 3px 14px;position:relative;border-bottom:1px dotted var(--border)"><span style="position:absolute;left:0;color:${meta.color};">→</span>${a}</li>`).join('')}</ul>` : `<ul id="acts-${groupId}-${si}" style="list-style:none;margin-bottom:12px;"></ul>`}
-                ${d.notes ? `<div style="background:var(--surface-2);border-radius:7px;padding:10px 12px;font-size:0.82rem;color:var(--text);border-left:3px solid var(--sand);">💡 ${d.notes}</div>` : ''}</div>
-            </div>`;
-        }).join('')}
-      </div>`;
-    acc.appendChild(div);
-  });
-}
-
-function toggleGroup(id) {
-  const el = document.getElementById(id);
-  const arrow = document.getElementById('arrow-'+id);
-  const open = el.style.display === 'block';
-  el.style.display = open ? 'none' : 'block';
-  if(arrow) arrow.style.transform = open ? '' : 'rotate(180deg)';
 }
 
 function toggleStopInline(id) {
