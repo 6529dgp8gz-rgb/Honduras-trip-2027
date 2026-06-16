@@ -8,56 +8,68 @@
 <meta name="apple-mobile-web-app-title" content="Trip Planner">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <title>Central America Trip Planner</title>
 <style>
   :root {
-    /* Brand — from app icon */
-    --navy:        #0A1428;
-    --navy-mid:    #162640;
-    --navy-light:  #34508A;
-    --gold:        #F4C24F;
-    --gold-dim:    #c49a30;
+    /* Four brand colors — from app icon, that's it */
+    --c1: #0A1428;   /* darkest — base bg */
+    --c2: #162640;   /* dark surface */
+    --c3: #34508A;   /* mid blue — accent surfaces */
+    --c4: #F4C24F;   /* gold — single highlight, used sparingly */
 
-    /* Dark surfaces */
-    --bg:          #0A1428;
-    --surface:     #131f35;
-    --surface-2:   #1a2a45;
-    --surface-3:   #203050;
+    /* Surfaces — tones of the same blue family */
+    --bg:        #0A1428;
+    --surface:   #111e33;
+    --surface-2: #172540;
+    --surface-3: #1e2e4e;
 
-    /* Text */
-    --text:        #e8edf5;
-    --text-muted:  #7a8aaa;
-    --text-dim:    #4a5a78;
+    /* Text — desaturated blues, not pure white */
+    --text:      #d0d8ea;
+    --text-muted:#6a7a96;
+    --text-dim:  #3a4a62;
 
-    /* Border */
-    --border:      rgba(255,255,255,0.08);
-    --border-med:  rgba(255,255,255,0.13);
+    /* Borders — very subtle */
+    --border:    rgba(52,80,138,0.25);
+    --border-med:rgba(52,80,138,0.4);
 
-    /* Semantic accents (kept for CA-4, badges etc.) */
-    --ocean:       #3a9fd6;
-    --green:       #3aad6a;
-    --amber:       #e8a830;
-    --red:         #e05050;
+    /* Single accent */
+    --gold:      #F4C24F;
+    --gold-dim:  rgba(244,194,79,0.15);
 
-    /* Legacy compat aliases */
-    --jungle:      var(--navy-mid);
-    --jungle-light:var(--navy-light);
+    /* Status — muted, monochrome-ish tones only */
+    --ok:    #4a8a6a;
+    --warn:  #8a7a30;
+    --err:   #8a3a3a;
+
+    /* Legacy aliases so existing code doesn't break */
+    --navy:        var(--c1);
+    --navy-mid:    var(--c2);
+    --navy-light:  var(--c3);
+    --jungle:      var(--c2);
+    --jungle-light:var(--c3);
     --coral:       var(--gold);
-    --sand:        #c49a30;
+    --sand:        #9a7a20;
     --sand-light:  var(--surface-2);
     --cream:       var(--bg);
     --white:       var(--surface);
-    --shadow:      0 2px 16px rgba(0,0,0,0.4);
-    --shadow-lg:   0 8px 32px rgba(0,0,0,0.6);
+    --ocean:       var(--c3);
+    --green:       var(--ok);
+    --amber:       var(--warn);
+    --red:         var(--err);
+    --shadow:      0 2px 16px rgba(0,0,0,0.5);
+    --shadow-lg:   0 8px 32px rgba(0,0,0,0.7);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -142,7 +154,7 @@
     border: none;
     background: transparent;
     color: var(--text-dim);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 0.6rem;
     font-weight: 500;
     letter-spacing: 0.02em;
@@ -173,12 +185,12 @@
     border-radius: 12px;
     padding: 14px 16px;
     border: 1px solid var(--border);
-    border-left: 3px solid var(--gold);
+    border-left: 3px solid var(--c3);
   }
-  .summary-card.green  { border-left-color: var(--green); }
-  .summary-card.blue   { border-left-color: var(--ocean); }
-  .summary-card.sand   { border-left-color: var(--gold); }
-  .summary-card.purple { border-left-color: #8b6fc0; }
+  .summary-card.green  { border-left-color: var(--c3); }
+  .summary-card.blue   { border-left-color: var(--c3); }
+  .summary-card.sand   { border-left-color: var(--c3); }
+  .summary-card.purple { border-left-color: var(--c3); }
   .summary-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px; }
   .summary-value { font-size: 1.35rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
   .summary-sub   { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
@@ -204,7 +216,7 @@
     color: var(--text);
   }
   .country-btn:hover  { border-color: var(--border-med); background: var(--surface-2); }
-  .country-btn.active { background: var(--navy-mid); border-color: var(--gold); color: var(--text); }
+  .country-btn.active { background: var(--surface-3); border-color: var(--c3); color: var(--text); }
   .country-flag  { font-size: 1.4rem; }
   .country-info  { flex: 1; }
   .country-name  { font-weight: 600; font-size: 0.88rem; }
@@ -215,7 +227,7 @@
     color: var(--text-muted);
     padding: 3px 8px; border-radius: 20px;
   }
-  .country-btn.active .country-days { background: rgba(244,194,79,0.15); color: var(--gold); }
+  .country-btn.active .country-days { background: var(--surface-3); color: var(--text); }
 
   .stops-container { display: flex; flex-direction: column; gap: 10px; }
   .stop-card {
@@ -233,7 +245,7 @@
   }
   .stop-number {
     width: 32px; height: 32px; border-radius: 50%;
-    background: var(--navy-light);
+    background: var(--c3);
     color: white;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.8rem; font-weight: 600; flex-shrink: 0;
@@ -242,11 +254,11 @@
   .stop-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
   .stop-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; display: flex; gap: 10px; }
   .stop-badge { padding: 3px 9px; border-radius: 20px; font-size: 0.68rem; font-weight: 500; white-space: nowrap; }
-  .badge-diving  { background: rgba(58,159,214,0.15); color: #5db8e8; }
-  .badge-nature  { background: rgba(58,173,106,0.15); color: #5dcc8a; }
-  .badge-culture { background: rgba(139,111,192,0.15); color: #b090e0; }
-  .badge-beach   { background: rgba(244,194,79,0.15);  color: var(--gold); }
-  .badge-city    { background: rgba(139,111,192,0.15); color: #b090e0; }
+  .badge-diving  { background: var(--surface-3); color: var(--text-muted); }
+  .badge-nature  { background: var(--surface-3); color: var(--text-muted); }
+  .badge-culture { background: var(--surface-3); color: var(--text-muted); }
+  .badge-beach   { background: var(--surface-3); color: var(--text-muted); }
+  .badge-city    { background: var(--surface-3); color: var(--text-muted); }
   .stop-toggle { font-size: 1rem; color: var(--text-dim); transition: transform 0.2s; }
   .stop-card.expanded .stop-toggle { transform: rotate(180deg); }
   .stop-body { padding: 14px 16px; display: none; border-top: 1px solid var(--border); background: var(--surface-2); }
@@ -261,7 +273,7 @@
   .stop-notes {
     background: var(--surface-3); border-radius: 8px;
     padding: 11px 13px; font-size: 0.82rem; color: var(--text-muted);
-    border-left: 2px solid var(--gold); margin-top: 12px;
+    border-left: 2px solid var(--c3); margin-top: 12px;
   }
   .stop-notes strong { display: block; margin-bottom: 3px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); }
 
@@ -270,7 +282,7 @@
   .calendar-months { display: flex; flex-direction: column; gap: 20px; }
   .month-block { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
   .month-header {
-    background: var(--navy-mid); color: var(--text);
+    background: var(--surface-2); color: var(--text);
     padding: 12px 18px; display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid var(--border);
   }
@@ -283,12 +295,12 @@
   .cal-day.empty { background: var(--navy); }
   .cal-day-num { font-size: 0.68rem; color: var(--text-dim); margin-bottom: 2px; }
   .cal-event { border-radius: 3px; padding: 1px 3px; font-size: 0.56rem; font-weight: 500; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
-  .ev-mexico     { background: rgba(244,194,79,0.2);  color: #e0b040; }
-  .ev-guatemala  { background: rgba(58,173,106,0.2);  color: #5dcc8a; }
-  .ev-honduras   { background: rgba(58,159,214,0.2);  color: #5db8e8; }
-  .ev-panama     { background: rgba(139,111,192,0.2); color: #b090e0; }
-  .ev-nicaragua  { background: rgba(232,168,48,0.2);  color: #d4a040; }
-  .ev-belize     { background: rgba(214,100,58,0.2);  color: #e07a58; }
+  .ev-mexico     { background: rgba(244,194,79,0.18); color: #c9a035; }
+  .ev-guatemala  { background: rgba(52,80,138,0.4);   color: #8aaad8; }
+  .ev-honduras   { background: rgba(52,80,138,0.6);   color: #aac4e8; }
+  .ev-panama     { background: rgba(22,38,64,0.9);    color: #6a8ab8; }
+  .ev-nicaragua  { background: rgba(52,80,138,0.5);   color: #9ab8d8; }
+  .ev-belize     { background: rgba(52,80,138,0.3);   color: #7a9ac8; }
   .ev-transit    { background: rgba(255,255,255,0.06); color: var(--text-dim); border: 1px dashed var(--border-med); }
   .ev-warning    { background: rgba(224,80,80,0.2);   color: #e08080; }
 
@@ -304,16 +316,16 @@
   .visa-counter { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--text); }
   .visa-counter:last-child { border-bottom: none; }
   .visa-days { font-weight: 600; font-size: 0.82rem; }
-  .visa-days.ok   { color: var(--green); }
-  .visa-days.warn { color: var(--red); }
+  .visa-days.ok   { color: var(--text); }
+  .visa-days.warn { color: var(--gold); }
   .checklist-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--text); }
   .checklist-item:last-child { border-bottom: none; }
   .check-box { width: 17px; height: 17px; border: 1px solid var(--border-med); border-radius: 4px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; margin-top: 1px; }
-  .check-box.checked { background: var(--gold); border-color: var(--gold); color: var(--navy); font-size: 0.65rem; }
+  .check-box.checked { background: var(--c3); border-color: var(--c3); color: var(--text); font-size: 0.65rem; }
 
   /* ── BUDGET ── */
   .budget-card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 14px; }
-  .budget-card-header { padding: 14px 18px; background: var(--navy-mid); color: var(--text); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  .budget-card-header { padding: 14px 18px; background: var(--surface-2); color: var(--text); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
   .budget-card-header h3 { font-size: 0.9rem; font-weight: 600; }
   .budget-total { font-size: 1rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
   .budget-table { width: 100%; border-collapse: collapse; }
@@ -321,10 +333,10 @@
   .budget-table td { padding: 9px 14px; font-size: 0.85rem; border-bottom: 1px solid var(--border); color: var(--text); }
   .budget-table tr:last-child td { border-bottom: none; }
   .budget-bar-wrap { background: var(--surface-3); border-radius: 4px; height: 5px; overflow: hidden; }
-  .budget-bar { height: 100%; border-radius: 4px; background: var(--gold); transition: width 0.6s; }
+  .budget-bar { height: 100%; border-radius: 4px; background: var(--c3); transition: width 0.6s; }
   .amount { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
-  .amount.green { color: var(--green); }
-  .amount.red   { color: var(--red); }
+  .amount.green { color: var(--text); }
+  .amount.red   { color: var(--gold); }
   .budget-full { grid-column: 1 / -1; }
   .monthly-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); }
   .monthly-cell { background: var(--surface); padding: 14px; }
@@ -340,12 +352,12 @@
   .note-cat-btn {
     padding: 9px 13px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--surface); cursor: pointer; text-align: left;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 0.85rem; display: flex; align-items: center; gap: 10px;
     transition: all 0.15s; color: var(--text);
   }
   .note-cat-btn:hover  { background: var(--surface-2); border-color: var(--border-med); }
-  .note-cat-btn.active { background: var(--navy-mid); border-color: var(--gold); color: var(--text); }
+  .note-cat-btn.active { background: var(--surface-3); border-color: var(--c3); color: var(--text); }
   .notes-section { display: none; }
   .notes-section.active { display: block; }
   .notes-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 18px; color: var(--text); }
@@ -357,21 +369,21 @@
   .info-row span:last-child { font-weight: 500; text-align: right; }
   .shared-notes-area { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 18px; }
   .shared-notes-area h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--text); }
-  .big-textarea { width: 100%; min-height: 200px; border: 1px solid var(--border); border-radius: 8px; padding: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.88rem; resize: vertical; color: var(--text); line-height: 1.6; background: var(--surface-2); }
-  .big-textarea:focus { outline: none; border-color: var(--gold); }
-  .notes-textarea { width: 100%; min-height: 80px; border: 1px solid var(--border); border-radius: 6px; padding: 9px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.82rem; resize: vertical; background: var(--surface-2); color: var(--text); }
-  .notes-textarea:focus { outline: none; border-color: var(--gold); }
+  .big-textarea { width: 100%; min-height: 200px; border: 1px solid var(--border); border-radius: 8px; padding: 13px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.88rem; resize: vertical; color: var(--text); line-height: 1.6; background: var(--surface-2); }
+  .big-textarea:focus { outline: none; border-color: var(--c3); }
+  .notes-textarea { width: 100%; min-height: 80px; border: 1px solid var(--border); border-radius: 6px; padding: 9px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.82rem; resize: vertical; background: var(--surface-2); color: var(--text); }
+  .notes-textarea:focus { outline: none; border-color: var(--c3); }
 
   /* ── TAGS / BADGES ── */
   .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.68rem; margin: 2px; }
-  .tag-warn { background: rgba(232,168,48,0.15); color: var(--amber); }
-  .tag-ok   { background: rgba(58,173,106,0.15); color: var(--green); }
-  .tag-info { background: rgba(58,159,214,0.15); color: var(--ocean); }
+  .tag-warn { background: var(--surface-3); color: var(--text-muted); }
+  .tag-ok   { background: var(--surface-3); color: var(--text); }
+  .tag-info { background: var(--surface-3); color: var(--text-muted); }
 
   /* ── BUTTONS ── */
-  .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.85rem; font-weight: 500; transition: all 0.15s; }
-  .btn-primary   { background: var(--gold); color: var(--navy); }
-  .btn-primary:hover { background: #e0b040; }
+  .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.85rem; font-weight: 500; transition: all 0.15s; }
+  .btn-primary   { background: var(--c3); color: var(--text); }
+  .btn-primary:hover { background: #3d5fa0; }
   .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border-med); }
   .btn-secondary:hover { background: var(--surface-3); }
 
@@ -435,20 +447,28 @@
 </div>
 
 <nav class="nav-tabs">
-  <button class="nav-tab active" onclick="showPage('itinerary', this)"><i class="ti ti-map-2" aria-hidden="true"></i>Itinerary</button>
-  <button class="nav-tab" onclick="showPage('calendar', this)"><i class="ti ti-calendar" aria-hidden="true"></i>Calendar</button>
-  <button class="nav-tab" onclick="showPage('budget', this)"><i class="ti ti-wallet" aria-hidden="true"></i>Budget</button>
-  <button class="nav-tab" onclick="showPage('flights', this)"><i class="ti ti-plane" aria-hidden="true"></i>Flights</button>
-  <button class="nav-tab" onclick="showPage('compare', this)"><i class="ti ti-git-compare" aria-hidden="true"></i>Compare</button>
-  <button class="nav-tab" onclick="showPage('map', this)"><i class="ti ti-map-pin" aria-hidden="true"></i>Map</button>
-  <button class="nav-tab" onclick="showPage('notes', this)"><i class="ti ti-notes" aria-hidden="true"></i>Notes</button>
+  <button class="nav-tab active" id="navbtn-itinerary" onclick="showPage('itinerary', this)"><i class="ti ti-map-2" aria-hidden="true"></i>Itinerary</button>
+  <button class="nav-tab" id="navbtn-calendar" onclick="showPage('calendar', this)"><i class="ti ti-calendar" aria-hidden="true"></i>Calendar</button>
+  <button class="nav-tab" id="navbtn-budget" onclick="showPage('budget', this)"><i class="ti ti-wallet" aria-hidden="true"></i>Budget</button>
+  <button class="nav-tab" id="navbtn-map" onclick="showPage('map', this)"><i class="ti ti-map-pin" aria-hidden="true"></i>Map</button>
+  <button class="nav-tab" id="navbtn-more" onclick="toggleMoreDrawer(this)"><i class="ti ti-dots" aria-hidden="true"></i>More</button>
 </nav>
+
+<!-- More drawer -->
+<div id="more-drawer" style="display:none;position:fixed;bottom:calc(56px + env(safe-area-inset-bottom));left:0;right:0;z-index:199;background:var(--surface);border-top:1px solid var(--border);padding:6px 8px 10px;">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+    <button onclick="showPageFromMore('flights')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:none;background:var(--surface-2);border-radius:10px;color:var(--text-muted);font-family:'Inter',-apple-system,sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;"><i class="ti ti-plane" style="font-size:22px;color:var(--text);" aria-hidden="true"></i>Flights</button>
+    <button onclick="showPageFromMore('compare')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:none;background:var(--surface-2);border-radius:10px;color:var(--text-muted);font-family:'Inter',-apple-system,sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;"><i class="ti ti-git-compare" style="font-size:22px;color:var(--text);" aria-hidden="true"></i>Compare</button>
+    <button onclick="showPageFromMore('notes')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:none;background:var(--surface-2);border-radius:10px;color:var(--text-muted);font-family:'Inter',-apple-system,sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;"><i class="ti ti-notes" style="font-size:22px;color:var(--text);" aria-hidden="true"></i>Notes</button>
+    <button onclick="showPageFromMore('map')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:none;background:var(--surface-2);border-radius:10px;color:var(--text-muted);font-family:'Inter',-apple-system,sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;"><i class="ti ti-map-pin" style="font-size:22px;color:var(--text);" aria-hidden="true"></i>Map</button>
+  </div>
+</div>
 
 <div class="main">
 
-  <!-- SUMMARY BAR -->
-  <div class="summary-bar">
-    <div class="summary-card" style="cursor:pointer;" onclick="showPage('budget', document.querySelectorAll('.nav-tab')[2])">
+  <!-- ============ ITINERARY PAGE ============ -->\n  <div id="page-itinerary" class="page active">\n\n    <!-- Summary bar — itinerary only -->
+    <div class="summary-bar">
+    <div class="summary-card" style="cursor:pointer;" onclick="showPage('budget', document.getElementById('navbtn-budget'))">
       <div class="summary-label">Duration</div>
       <div class="summary-value" id="sb-days">—</div>
       <div class="summary-sub">days total</div>
@@ -466,7 +486,7 @@
     <div class="summary-card sand" style="cursor:pointer;" onclick="showBudgetInfoModal()">
       <div class="summary-label">Ground cost/month</div>
       <div class="summary-value" id="sb-budget">—</div>
-      <div class="summary-sub">tap for breakdown ℹ️</div>
+      <div class="summary-sub">tap for breakdown</div>
     </div>
     <div class="summary-card purple">
       <div class="summary-label">Stops</div>
@@ -475,9 +495,6 @@
     </div>
   </div>
 
-  <!-- ============ ITINERARY PAGE ============ -->
-  <div id="page-itinerary" class="page active">
-
     <!-- Flight info + edit button row -->
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <div style="flex:1;min-width:200px;background:var(--surface);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow);font-size:0.82rem;">
@@ -485,7 +502,7 @@
         <div style="padding:4px 0;border-bottom:1px solid var(--border);">✈️ <strong>FRA → CUN</strong> <span style="color:var(--text-muted);">Frankfurt → Cancún</span></div>
         <div style="padding:4px 0;">✈️ <strong>PTY → FRA</strong> <span style="color:var(--text-muted);">Panama City → Frankfurt</span></div>
       </div>
-      <button onclick="openEditModal()" style="padding:12px 18px;background:var(--gold);color:white;border:none;border-radius:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow);white-space:nowrap;align-self:stretch;"><i class="ti ti-edit" aria-hidden="true"></i> Edit Stops</button>
+      <button onclick="openEditModal()" style="padding:12px 18px;background:var(--surface-2);color:var(--text);border:1px solid var(--border-med);border-radius:10px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow);white-space:nowrap;align-self:stretch;"><i class="ti ti-edit" aria-hidden="true"></i> Edit Stops</button>
     </div>
 
     <!-- Accordion by country -->
@@ -499,7 +516,7 @@
     <div style="background:var(--surface); border-radius:12px; box-shadow:var(--shadow); padding:16px; margin-bottom:18px;">
       <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:10px; font-weight:600;">📅 Adjust Start Date — See Price Impact</div>
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <input type="date" id="start-date-input" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:0.9rem; color:var(--text);" onchange="updateTripDate(this.value)">
+        <input type="date" id="start-date-input" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:0.9rem; color:var(--text);" onchange="updateTripDate(this.value)">
         <div id="season-badge" style="padding:6px 12px; border-radius:20px; font-size:0.8rem; font-weight:500;"></div>
       </div>
       <div id="price-impact" style="margin-top:12px; font-size:0.85rem; line-height:1.6; color:var(--text);"></div>
@@ -549,12 +566,12 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
       <div id="fl-best-out" style="background:var(--navy-mid);color:var(--text);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);">
         <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;opacity:0.7;margin-bottom:4px;">Best outbound found</div>
-        <div id="fl-best-out-val" style="font-family:Georgia,serif;font-size:1.1rem;font-weight:700;">—</div>
+        <div id="fl-best-out-val" style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1.1rem;font-weight:700;">—</div>
         <div id="fl-best-out-sub" style="font-size:0.75rem;opacity:0.7;margin-top:2px;">no options saved yet</div>
       </div>
       <div id="fl-best-ret" style="background:rgba(58,159,214,0.15);color:var(--ocean);border:1px solid rgba(58,159,214,0.3);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);">
         <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;opacity:0.7;margin-bottom:4px;">Best return found</div>
-        <div id="fl-best-ret-val" style="font-family:Georgia,serif;font-size:1.1rem;font-weight:700;">—</div>
+        <div id="fl-best-ret-val" style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1.1rem;font-weight:700;">—</div>
         <div id="fl-best-ret-sub" style="font-size:0.75rem;opacity:0.7;margin-top:2px;">no options saved yet</div>
       </div>
     </div>
@@ -570,7 +587,7 @@
     <div id="flpanel-out">
       <div style="background:var(--surface);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;">
         <div style="background:var(--navy-mid);color:var(--text);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-family:Georgia,serif;font-size:1rem;"><i class="ti ti-plane-departure" aria-hidden="true"></i> Outbound Options — to Cancún (CUN)</span>
+          <span style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1rem;"><i class="ti ti-plane-departure" aria-hidden="true"></i> Outbound Options — to Cancún (CUN)</span>
           <button onclick="openFlightForm('out')" style="padding:6px 14px;border-radius:20px;border:none;background:var(--gold);color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">+ Add flight</button>
         </div>
         <div id="fl-out-list" style="padding:8px 0;min-height:60px;">
@@ -586,7 +603,7 @@
     <div id="flpanel-ret" style="display:none;">
       <div style="background:var(--surface);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;">
         <div style="background:rgba(58,159,214,0.15);color:var(--ocean);border:1px solid rgba(58,159,214,0.3);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-family:Georgia,serif;font-size:1rem;"><i class="ti ti-plane-arrival" aria-hidden="true"></i> Return Options — from Panama City (PTY)</span>
+          <span style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1rem;"><i class="ti ti-plane-arrival" aria-hidden="true"></i> Return Options — from Panama City (PTY)</span>
           <button onclick="openFlightForm('ret')" style="padding:6px 14px;border-radius:20px;border:none;background:var(--gold);color:white;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">+ Add flight</button>
         </div>
         <div id="fl-ret-list" style="padding:8px 0;min-height:60px;">
@@ -602,7 +619,7 @@
     <div id="flpanel-tips" style="display:none;">
       <div style="background:var(--surface);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;">
         <div style="background:var(--navy-mid);color:var(--text);padding:14px 16px;">
-          <span style="font-family:Georgia,serif;font-size:1rem;">💡 Flight Search Tips</span>
+          <span style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1rem;">💡 Flight Search Tips</span>
         </div>
         <div style="padding:0;">
 
@@ -660,7 +677,7 @@
       <!-- Quick search links -->
       <div style="background:var(--surface);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;margin-top:14px;">
         <div style="background:rgba(58,159,214,0.15);color:var(--ocean);border:1px solid rgba(58,159,214,0.3);padding:14px 16px;">
-          <span style="font-family:Georgia,serif;font-size:1rem;">🔗 Quick Search Links</span>
+          <span style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1rem;">🔗 Quick Search Links</span>
         </div>
         <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;">
           <a href="https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI1LTEyLTAxagcIARIDRlJBcgcIARIDQ1VOGh4SCjIwMjYtMDMtMDFqBwgBEgNQVFlyCAgBEgNGUkE" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface-2);border-radius:8px;text-decoration:none;color:var(--text);">
@@ -694,7 +711,7 @@
   <div id="page-compare" class="page">
 
     <div style="background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:16px;">
-      <div style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:4px;"><i class="ti ti-git-compare" aria-hidden="true"></i> 90-Day Route Comparison</div>
+      <div style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1.1rem;margin-bottom:4px;"><i class="ti ti-git-compare" aria-hidden="true"></i> 90-Day Route Comparison</div>
       <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;">Four options for your 90 days. Tap a route to see full details, then load it into the app to see how the budget and calendar change.</div>
     </div>
 
@@ -709,7 +726,7 @@
 
     <!-- At a glance comparison table -->
     <div style="background:var(--surface);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;">
-      <div style="background:var(--navy-mid);color:var(--text);padding:12px 16px;font-family:'Playfair Display',serif;font-size:0.95rem;">At a glance — all four routes</div>
+      <div style="background:var(--navy-mid);color:var(--text);padding:12px 16px;font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:0.95rem;">At a glance — all four routes</div>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:0.8rem;min-width:420px;">
           <thead>
@@ -774,7 +791,7 @@
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="color:var(--text-muted);font-size:0.9rem;">$</span>
             <input type="number" id="fix-flights" value="2200" min="0" step="50"
-              style="width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:0.95rem;font-family:'Courier New',monospace;"
+              style="width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:0.95rem;font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;"
               oninput="calcBudget()">
           </div>
         </div>
@@ -783,7 +800,7 @@
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="color:var(--text-muted);font-size:0.9rem;">$</span>
             <input type="number" id="fix-misc" value="600" min="0" step="50"
-              style="width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:0.95rem;font-family:'Courier New',monospace;"
+              style="width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:0.95rem;font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;"
               oninput="calcBudget()">
           </div>
         </div>
@@ -835,7 +852,7 @@
     <!-- Budget Tips -->
     <div id="budget-tips-card" style="background:var(--surface);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;margin-top:0;">
       <div style="background:var(--navy-mid);color:var(--text);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-family:Georgia,serif;font-size:1.05rem;"><i class="ti ti-bulb" aria-hidden="true"></i> Budget Tips for Your Trip</span>
+        <span style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1.05rem;"><i class="ti ti-bulb" aria-hidden="true"></i> Budget Tips for Your Trip</span>
         <span id="tips-season-label" style="font-size:0.75rem;opacity:0.7;"></span>
       </div>
       <div id="budget-tips-body" style="padding:4px 0;"></div>
@@ -1075,7 +1092,7 @@ Bocas: Hotel Bocas del Toro, Palmar tent lodge"></textarea>
     <div id="day-modal-header" style="padding:18px 18px 14px;border-radius:16px 16px 0 0;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
         <div>
-          <div id="day-modal-date" style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;"></div>
+          <div id="day-modal-date" style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1.3rem;font-weight:700;"></div>
           <div id="day-modal-day-num" style="font-size:0.75rem;opacity:0.7;margin-top:2px;"></div>
         </div>
         <button onclick="closeDayModal()" style="width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,0.15);color:white;font-size:1rem;cursor:pointer;">✕</button>
@@ -1089,7 +1106,7 @@ Bocas: Hotel Bocas del Toro, Palmar tent lodge"></textarea>
 <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);padding:16px;align-items:flex-start;justify-content:center;overflow-y:auto;">
   <div style="background:var(--surface);border-radius:16px;max-width:500px;width:100%;margin:20px auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
     <div style="background:var(--navy-mid);color:var(--text);padding:16px 18px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-family:Georgia,serif;font-size:1.1rem;"><i class="ti ti-edit" aria-hidden="true"></i> Edit Trip Stops</span>
+      <span style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1.1rem;"><i class="ti ti-edit" aria-hidden="true"></i> Edit Trip Stops</span>
       <button onclick="closeEditModal()" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.1);color:var(--text);font-size:0.9rem;cursor:pointer;">✕</button>
     </div>
     <div style="padding:16px;">
@@ -1098,7 +1115,7 @@ Bocas: Hotel Bocas del Toro, Palmar tent lodge"></textarea>
       <div style="background:var(--surface-2);border-radius:10px;padding:14px;">
         <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:10px;font-weight:600;">+ Add New Stop</div>
         <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;margin-bottom:8px;">
-          <input id="new-stop-name" placeholder="Destination name" style="border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:0.88rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+          <input id="new-stop-name" placeholder="Destination name" style="border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:0.88rem;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;">
           <select id="new-stop-flag" style="border:1px solid var(--border);border-radius:7px;padding:8px 6px;font-size:0.88rem;">
             <option value="🇲🇽">🇲🇽 MX</option>
             <option value="🇬🇹">🇬🇹 GT — CA-4</option>
@@ -1132,7 +1149,7 @@ Bocas: Hotel Bocas del Toro, Palmar tent lodge"></textarea>
           <input type="checkbox" id="new-stop-ca4" style="width:16px;height:16px;">
           <label for="new-stop-ca4" style="font-size:0.82rem;color:var(--text);">Part of CA-4 zone (Guatemala / Honduras / El Salvador / Nicaragua)</label>
         </div>
-        <button onclick="addNewStop()" style="width:100%;padding:10px;background:var(--gold);color:white;border:none;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;">Add Stop to Trip</button>
+        <button onclick="addNewStop()" style="width:100%;padding:10px;background:var(--gold);color:white;border:none;border-radius:8px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;">Add Stop to Trip</button>
       </div>
     </div>
   </div>
@@ -1143,10 +1160,40 @@ function showPage(page, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
+  closeMoreDrawer();
   if (page === 'calendar') initCalendarPage();
   if (page === 'map') initMap();
   if (page === 'compare') { if (typeof showRoute === 'function') showRoute(window._activeRoute || 'D'); }
+}
+
+function toggleMoreDrawer(btn) {
+  const drawer = document.getElementById('more-drawer');
+  const open = drawer.style.display !== 'none';
+  if (open) {
+    closeMoreDrawer();
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    const active = document.querySelector('.page.active');
+    if (active) {
+      const id = active.id.replace('page-','');
+      const navBtn = document.getElementById('navbtn-' + id);
+      if (navBtn) navBtn.classList.add('active'); else btn.classList.add('active');
+    }
+  } else {
+    drawer.style.display = 'block';
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function closeMoreDrawer() {
+  const drawer = document.getElementById('more-drawer');
+  if (drawer) drawer.style.display = 'none';
+}
+
+function showPageFromMore(page) {
+  showPage(page, document.getElementById('navbtn-more'));
+  document.getElementById('navbtn-more').classList.add('active');
 }
 
 function showCountry(country, btn) {
@@ -1185,13 +1232,13 @@ const seasons = [
   { months: [11,0,1,2,3], label: 'Peak Season (Dec–Apr)', badge: '#fce8c8', color: '#8b4a00',
     flights: '$1,300–1,600pp', accommodation: '+20–30% vs base', overall: 'Budget ~$3,400/month combined',
     note: '☀️ Best weather, driest. Busiest on islands. Book accommodation well in advance, especially Roatán.' },
-  { months: [4,5], label: 'Shoulder (May–Jun)', badge: 'rgba(58,173,106,0.15)', color: '#3aad6a',
+  { months: [4,5], label: 'Shoulder (May–Jun)', badge: 'rgba(52,80,138,0.4)', color: '#3aad6a',
     flights: '$900–1,200pp', accommodation: 'Base prices', overall: 'Budget ~$2,800/month combined',
     note: '🌦 Some rain, fewer tourists. Good value. Whale sharks possible on Utila in Oct–Nov window.' },
-  { months: [6,7,8,9], label: 'Low / Hurricane Season (Jul–Oct)', badge: 'rgba(58,159,214,0.15)', color: '#3a9fd6',
+  { months: [6,7,8,9], label: 'Low / Hurricane Season (Jul–Oct)', badge: 'var(--surface-3)', color: 'var(--text-muted)',
     flights: '$750–1,000pp', accommodation: '-15–25% discounts common', overall: 'Budget ~$2,400/month combined',
     note: '🌧 Hurricane risk Aug–Oct on Bay Islands. Best prices. Travel insurance essential. Jungle is lush.' },
-  { months: [10], label: 'Shoulder (Nov)', badge: 'rgba(139,111,192,0.15)', color: '#b090e0',
+  { months: [10], label: 'Shoulder (Nov)', badge: 'var(--surface-3)', color: 'var(--text-muted)',
     flights: '$850–1,100pp', accommodation: 'Near-base prices', overall: 'Budget ~$2,600/month combined',
     note: '🌤 Excellent timing — end of rain, before peak crowds. Whale shark season on Utila!' },
 ];
@@ -1344,7 +1391,7 @@ function updateStopTimeline(stopDates) {
   }
   const fmt = d => d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
   const clrMap = { '🇲🇽':'#e05c3a','🇬🇹':'#2a7a40','🇭🇳':'#0a7ea4','🇵🇦':'#8b6fc0' };
-  const bgMap  = { '🇲🇽':'rgba(244,194,79,0.12)','🇬🇹':'rgba(58,173,106,0.12)','🇭🇳':'rgba(58,159,214,0.12)','🇵🇦':'rgba(139,111,192,0.12)' };
+  const bgMap  = { '🇲🇽':'rgba(52,80,138,0.25)','🇬🇹':'rgba(52,80,138,0.35)','🇭🇳':'rgba(52,80,138,0.45)','🇵🇦':'rgba(22,38,64,0.9)' };
   el.innerHTML = `<div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:2px;">📍 Stop Timeline</div>` +
     stopDates.map((s,i) => {
       const nights = Math.round((s.departure - s.arrival)/86400000)+1;
@@ -1374,7 +1421,7 @@ const stops = [
 ];
 
 const countryColors = { mx: '#e05c3a', gt: '#2a7a40', hn: '#0a7ea4', pa: '#8b6fc0' };
-const countryBg = { mx: 'rgba(244,194,79,0.12)', gt: 'rgba(58,173,106,0.12)', hn: 'rgba(58,159,214,0.12)', pa: 'rgba(139,111,192,0.12)' };
+const countryBg = { mx: 'rgba(52,80,138,0.25)', gt: 'rgba(52,80,138,0.35)', hn: 'rgba(52,80,138,0.5)', pa: 'rgba(22,38,64,0.85)' };
 
 let mapInitialized = false;
 function initMap() {
@@ -1445,24 +1492,24 @@ function buildStopsTable() {
         <td style="padding:5px 3px;text-align:center;">
           <div style="display:flex;align-items:center;justify-content:center;gap:3px;">
             <button onclick="adjDays(${i},-1)" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:var(--surface);font-size:0.9rem;cursor:pointer;">−</button>
-            <span id="days-${i}" style="font-family:'Courier New',monospace;font-size:0.88rem;min-width:20px;text-align:center;">${s.days}</span>
+            <span id="days-${i}" style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-size:0.88rem;min-width:20px;text-align:center;">${s.days}</span>
             <button onclick="adjDays(${i},1)" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:var(--surface);font-size:0.9rem;cursor:pointer;">+</button>
           </div>
         </td>
         <td style="padding:5px 3px;text-align:center;">
           <input type="number" value="${s.accom}" min="0" step="5" data-i="${i}" data-f="accom"
-            style="width:52px;border:1px solid var(--border);border-radius:5px;padding:4px 4px;font-size:0.78rem;font-family:'Courier New',monospace;text-align:center;" oninput="updateField(this)">
+            style="width:52px;border:1px solid var(--border);border-radius:5px;padding:4px 4px;font-size:0.78rem;font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;text-align:center;" oninput="updateField(this)">
         </td>
         <td style="padding:5px 3px;text-align:center;">
           <input type="number" value="${s.food}" min="0" step="5" data-i="${i}" data-f="food"
-            style="width:48px;border:1px solid var(--border);border-radius:5px;padding:4px 4px;font-size:0.78rem;font-family:'Courier New',monospace;text-align:center;" oninput="updateField(this)">
+            style="width:48px;border:1px solid var(--border);border-radius:5px;padding:4px 4px;font-size:0.78rem;font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;text-align:center;" oninput="updateField(this)">
         </td>
         <td style="padding:5px 3px;text-align:center;">
           <input type="number" value="${s.dive}" min="0" step="5" data-i="${i}" data-f="dive"
-            style="width:48px;border:1px solid var(--border);border-radius:5px;padding:4px 4px;font-size:0.78rem;font-family:'Courier New',monospace;text-align:center;" oninput="updateField(this)">
+            style="width:48px;border:1px solid var(--border);border-radius:5px;padding:4px 4px;font-size:0.78rem;font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;text-align:center;" oninput="updateField(this)">
         </td>
         <td style="padding:5px 8px;text-align:right;">
-          <div id="sub-${i}" style="font-family:'Courier New',monospace;font-size:0.82rem;font-weight:600;">${fmt(sub)}</div>
+          <div id="sub-${i}" style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-size:0.82rem;font-weight:600;">${fmt(sub)}</div>
           <div style="margin-top:3px;background:var(--surface-3);border-radius:3px;height:3px;overflow:hidden;">
             <div id="bar-${i}" style="height:100%;background:var(--gold);border-radius:3px;width:${Math.min(100,sub/25)}%;transition:width 0.3s;"></div>
           </div>
@@ -1531,18 +1578,18 @@ function calcBudget() {
   }
   const rows=[['🛏️ Accommodation',fmt(accomT)],['🍽️ Food & drink',fmt(foodT)],['🤿 Diving',fmt(diveT)],['🚌 Transport (all)',fmt(transT)],['✈️ Flights',fmt(flights)],['📦 Misc fixed',fmt(misc)]];
   if(el('summary-rows')) el('summary-rows').innerHTML =
-    rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border);font-size:0.875rem;"><span>${k}</span><span style="font-family:'Courier New',monospace;font-weight:500;">${v}</span></div>`).join('')+
+    rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border);font-size:0.875rem;"><span>${k}</span><span style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:500;">${v}</span></div>`).join('')+
     `<div style="display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:1rem;color:var(--gold);background:#fff8e0;">
        <div><span>Grand Total (2 ppl)</span><div style="font-size:0.68rem;font-weight:400;color:#8b4a00;margin-top:2px;">= all stops + flights $${flights} + misc $${misc}</div></div>
-       <span style="font-family:'Courier New',monospace;">${fmt(grand)}</span>
+       <span style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;">${fmt(grand)}</span>
      </div>
      <div style="display:flex;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border);font-weight:600;color:var(--green);background:var(--surface-2);font-size:0.9rem;">
        <div><span>Per person</span><div style="font-size:0.68rem;font-weight:400;color:#1a5a30;margin-top:1px;">grand total ÷ 2</div></div>
-       <span style="font-family:'Courier New',monospace;">${fmt(perPerson)}</span>
+       <span style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;">${fmt(perPerson)}</span>
      </div>
      <div style="display:flex;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border);font-weight:600;color:var(--green);background:var(--surface-2);font-size:0.9rem;">
        <div><span>Ground cost / month</span><div style="font-size:0.68rem;font-weight:400;color:#1a5a30;margin-top:1px;">(accom + food + diving) ÷ days × 30</div></div>
-       <span style="font-family:'Courier New',monospace;">${fmt(perMonth)}</span>
+       <span style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;">${fmt(perMonth)}</span>
      </div>
      <div style="padding:10px 16px;font-size:0.75rem;color:var(--text-muted);background:var(--navy);line-height:1.5;">
        💡 <strong>Ground cost/month</strong> = what you burn daily on the road × 30. It excludes one-time costs (flights, insurance) so adding cheaper destinations correctly lowers it. <strong>Grand total</strong> = every cost combined.
@@ -1659,7 +1706,7 @@ function openDayModal(dateObj, offset) {
   });
 
   const clrMap = {'🇲🇽':'#e05c3a','🇬🇹':'#2a7a40','🇭🇳':'#0a7ea4','🇵🇦':'#8b6fc0','🇧🇿':'#c04010','🇨🇷':'#2a7a40','🇳🇮':'#c07010'};
-  const bgMap  = {'🇲🇽':'rgba(244,194,79,0.12)','🇬🇹':'rgba(58,173,106,0.12)','🇭🇳':'rgba(58,159,214,0.12)','🇵🇦':'rgba(139,111,192,0.12)','🇧🇿':'rgba(214,100,58,0.12)','🇨🇷':'rgba(58,173,106,0.12)','🇳🇮':'rgba(232,168,48,0.12)'};
+  const bgMap  = {'🇲🇽':'rgba(52,80,138,0.25)','🇬🇹':'rgba(52,80,138,0.35)','🇭🇳':'rgba(52,80,138,0.45)','🇵🇦':'rgba(22,38,64,0.9)','🇧🇿':'rgba(52,80,138,0.20)','🇨🇷':'rgba(52,80,138,0.35)','🇳🇮':'rgba(52,80,138,0.30)'};
 
   let color = '#888', bg = '#f5f5f5';
   if (found) { color = clrMap[found.flag]||'#888'; bg = bgMap[found.flag]||'#f5f5f5'; }
@@ -1688,7 +1735,7 @@ function openDayModal(dateObj, offset) {
   } else if (found) {
     const stopIdx = stopData.indexOf(found);
     const statusLabel = status==='arrival' ? '🛬 Arrival day' : status==='departure' ? '🛫 Departure day' : '📍 In destination';
-    const statusBg = status==='arrival'?'rgba(58,173,106,0.15)':status==='departure'?'rgba(244,194,79,0.15)':'rgba(58,159,214,0.15)';
+    const statusBg = status==='arrival'?'rgba(52,80,138,0.4)':status==='departure'?'rgba(244,194,79,0.15)':'rgba(58,159,214,0.15)';
     const ca4warn = found.ca4 ? `<div style="background:#fce8c0;border-radius:7px;padding:8px 10px;font-size:0.78rem;color:#8b4a00;margin-top:10px;"><i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone — counting toward your 90-day limit</div>` : '';
     const dayInStop = offset - (() => { let c=0; for(let i=0;i<stopIdx;i++){c+=stopData[i].days+1;} return c; })();
     const stopStart = new Date(currentStart); stopStart.setDate(stopStart.getDate() + (() => { let c=0; for(let i=0;i<stopIdx;i++){c+=stopData[i].days+1;} return c; })());
@@ -1699,7 +1746,7 @@ function openDayModal(dateObj, offset) {
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
         <div style="font-size:2rem;">${found.flag}</div>
         <div>
-          <div style="font-family:Georgia,serif;font-size:1.2rem;font-weight:700;">${found.name}</div>
+          <div style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1.2rem;font-weight:700;">${found.name}</div>
           <div style="font-size:0.78rem;color:var(--text-muted);">${fmtD(stopStart)} – ${fmtD(stopEnd)} · ${found.days} nights</div>
         </div>
       </div>
@@ -1751,7 +1798,7 @@ function closeEditModal() {
 
 function renderEditList() {
   const list = document.getElementById('edit-stops-list');
-  const clrMap = {'🇲🇽':'rgba(244,194,79,0.12)','🇬🇹':'rgba(58,173,106,0.12)','🇭🇳':'rgba(58,159,214,0.12)','🇵🇦':'rgba(139,111,192,0.12)','🇧🇿':'rgba(214,100,58,0.12)','🇨🇷':'rgba(58,173,106,0.12)','🇳🇮':'rgba(232,168,48,0.12)'};
+  const clrMap = {'🇲🇽':'rgba(52,80,138,0.25)','🇬🇹':'rgba(52,80,138,0.35)','🇭🇳':'rgba(52,80,138,0.45)','🇵🇦':'rgba(22,38,64,0.9)','🇧🇿':'rgba(52,80,138,0.20)','🇨🇷':'rgba(52,80,138,0.35)','🇳🇮':'rgba(52,80,138,0.30)'};
   list.innerHTML = stopData.map((s,i) => `
     <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:${clrMap[s.flag]||'#f5f5f5'};border-radius:8px;">
       <span style="font-size:1.2rem;">${s.flag}</span>
@@ -1837,14 +1884,14 @@ const stopDetails = {
 };
 
 const countryMeta = {
-  '🇲🇽': { name:'Mexico',    info:'Visa-free · 180 days · No CA-4', color:'#F4C24F', bg:'rgba(244,194,79,0.12)' },
-  '🇬🇹': { name:'Guatemala', info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone starts · 90 days shared', color:'#3aad6a', bg:'rgba(58,173,106,0.12)' },
-  '🇭🇳': { name:'Honduras',  info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 continues · monitor days', color:'#3a9fd6', bg:'rgba(58,159,214,0.12)' },
-  '🇵🇦': { name:'Panama',    info:'✅ Outside CA-4 · visa-free · 90 days fresh', color:'#b090e0', bg:'rgba(139,111,192,0.12)' },
-  '🇧🇿': { name:'Belize',    info:'Visa-free · outside CA-4 — resets counter!', color:'#c04010', bg:'rgba(214,100,58,0.12)' },
-  '🇨🇷': { name:'Costa Rica',info:'Visa-free · 90 days · outside CA-4', color:'#3aad6a', bg:'rgba(58,173,106,0.12)' },
-  '🇸🇻': { name:'El Salvador', info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone · 90 days shared with GT/HN/NI', color:'#3aad6a', bg:'rgba(58,173,106,0.12)' },
-  '🇳🇮': { name:'Nicaragua',  info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone · 90 days shared with GT/HN/SV', color:'#e8a830', bg:'rgba(232,168,48,0.12)' },
+  '🇲🇽': { name:'Mexico',    info:'Visa-free · 180 days · No CA-4', color:'#8aaad8', bg:'rgba(52,80,138,0.25)' },
+  '🇬🇹': { name:'Guatemala', info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone starts · 90 days shared', color:'#8aaad8', bg:'rgba(52,80,138,0.35)' },
+  '🇭🇳': { name:'Honduras',  info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 continues · monitor days', color:'#6a8ab8', bg:'rgba(52,80,138,0.45)' },
+  '🇵🇦': { name:'Panama',    info:'✅ Outside CA-4 · visa-free · 90 days fresh', color:'#5a7aa8', bg:'rgba(22,38,64,0.9)' },
+  '🇧🇿': { name:'Belize',    info:'Visa-free · outside CA-4 — resets counter!', color:'#c04010', bg:'rgba(52,80,138,0.20)' },
+  '🇨🇷': { name:'Costa Rica',info:'Visa-free · 90 days · outside CA-4', color:'#8aaad8', bg:'rgba(52,80,138,0.35)' },
+  '🇸🇻': { name:'El Salvador', info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone · 90 days shared with GT/HN/NI', color:'#8aaad8', bg:'rgba(52,80,138,0.35)' },
+  '🇳🇮': { name:'Nicaragua',  info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone · 90 days shared with GT/HN/SV', color:'#8aaad8', bg:'rgba(52,80,138,0.30)' },
 };
 
 function buildItineraryAccordion() {
@@ -1877,7 +1924,7 @@ function buildItineraryAccordion() {
           <div style="font-size:0.72rem;color:${meta.color};margin-top:1px;">${meta.info}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:'Courier New',monospace;font-weight:700;font-size:0.9rem;color:${meta.color};">${totalDays}d</div>
+          <div style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:700;font-size:0.9rem;color:${meta.color};">${totalDays}d</div>
           <div id="arrow-${groupId}" style="font-size:0.75rem;color:#999;transition:transform 0.2s;">▼</div>
         </div>
       </div>
@@ -1936,7 +1983,7 @@ function showBudgetInfoModal() {
     <div style="position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:20px;" onclick="this.remove()">
       <div style="background:var(--surface);border-radius:16px;max-width:380px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <span style="font-family:Georgia,serif;font-size:1.1rem;font-weight:700;">How costs are calculated</span>
+          <span style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1.1rem;font-weight:700;">How costs are calculated</span>
           <button onclick="this.closest('[style*=fixed]').remove()" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surface-3);cursor:pointer;color:var(--text);">✕</button>
         </div>
         <div style="background:var(--surface-2);border-radius:10px;padding:14px;margin-bottom:12px;">
@@ -1955,7 +2002,7 @@ function showBudgetInfoModal() {
             = <strong>$${Math.round(grand).toLocaleString()}</strong> for 2 people · <strong>$${Math.round(grand/2).toLocaleString()}</strong> per person
           </div>
         </div>
-        <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;margin-top:14px;padding:10px;background:var(--navy-mid);color:var(--text);border:none;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.9rem;cursor:pointer;">Got it</button>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;margin-top:14px;padding:10px;background:var(--navy-mid);color:var(--text);border:none;border-radius:8px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:0.9rem;cursor:pointer;">Got it</button>
       </div>
     </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
@@ -2043,8 +2090,8 @@ function renderFlightList(dir) {
   }
   const statusStyle = {
     watching:   { bg:'#f0f0e0', color:'#5a5a20', label:'👀 Watching' },
-    interested: { bg:'rgba(214,100,58,0.12)', color:'#8b4a00', label:'⭐ Interested' },
-    booked:     { bg:'rgba(58,173,106,0.12)', color:'#1a5a30', label:'✅ Booked!' },
+    interested: { bg:'rgba(52,80,138,0.20)', color:'#8b4a00', label:'⭐ Interested' },
+    booked:     { bg:'rgba(52,80,138,0.35)', color:'#1a5a30', label:'✅ Booked!' },
   };
   const sorted = [...flights].sort((a,b) => {
     const order = { booked:0, interested:1, watching:2 };
@@ -2060,12 +2107,12 @@ function renderFlightList(dir) {
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
             <span style="font-weight:700;font-size:0.95rem;">${f.origin} → ${f.dest}</span>
             <span style="font-size:0.78rem;color:var(--text-muted);">${f.airline}</span>
-            ${f.time ? `<span style="font-family:'Courier New',monospace;font-size:0.8rem;color:var(--ocean);">${f.time}</span>` : ''}
+            ${f.time ? `<span style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-size:0.8rem;color:var(--ocean);">${f.time}</span>` : ''}
           </div>
           <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">${stopsLabel}${via}${f.duration?' · '+f.duration:''}</div>
           ${f.notes ? `<div style="font-size:0.78rem;background:var(--surface-2);border-radius:5px;padding:5px 8px;margin-bottom:6px;">${f.notes}</div>` : ''}
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            ${f.price ? `<span style="font-family:'Courier New',monospace;font-weight:700;font-size:0.95rem;color:var(--gold);">€${f.price.toLocaleString()}<span style="font-size:0.68rem;font-weight:400;color:var(--text-muted);">/pp</span></span>` : ''}
+            ${f.price ? `<span style="font-family:'Inter',-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:700;font-size:0.95rem;color:var(--gold);">€${f.price.toLocaleString()}<span style="font-size:0.68rem;font-weight:400;color:var(--text-muted);">/pp</span></span>` : ''}
             <button onclick="toggleFlightStatus('${dir}',${f.id})" style="padding:3px 10px;border-radius:12px;border:none;background:${ss.bg};color:${ss.color};font-size:0.72rem;font-weight:600;cursor:pointer;">${ss.label}</button>
           </div>
         </div>
@@ -2219,7 +2266,7 @@ function showRoute(key) {
   el.innerHTML =
     '<div style="background:var(--surface);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;">' +
       '<div style="background:'+r.color+';color:white;padding:14px 16px;">' +
-        '<div style="font-family:Georgia,serif;font-size:1rem;margin-bottom:3px;">'+r.label+'</div>' +
+        '<div style="font-weight:600;font-size:1rem;margin-bottom:3px;">'+r.label+'</div>' +
         '<div style="font-size:0.78rem;opacity:0.85;">'+r.tagline+'</div>' +
       '</div>' +
       '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);">' +
@@ -2252,7 +2299,7 @@ function loadRouteIntoApp(key) {
   buildItineraryAccordion();
   rebuildCalendar();
   calcBudget();
-  showPage('itinerary', document.querySelector('.nav-tab'));
+  showPage('itinerary', document.getElementById('navbtn-itinerary'));
 }
 
 // Init compare with Route D selected (the recommended one)
@@ -2266,7 +2313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="fl-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);padding:16px;align-items:flex-start;justify-content:center;overflow-y:auto;">
   <div style="background:var(--surface);border-radius:16px;max-width:460px;width:100%;margin:20px auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">
     <div style="background:var(--navy-mid);color:var(--text);padding:15px 18px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;">
-      <span id="fl-form-title" style="font-family:Georgia,serif;font-size:1rem;"></span>
+      <span id="fl-form-title" style="font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:1rem;"></span>
       <button onclick="closeFlightModal()" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.1);color:var(--text);cursor:pointer;">✕</button>
     </div>
     <input type="hidden" id="fl-form-dir">
