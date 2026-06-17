@@ -254,11 +254,11 @@
   .stop-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
   .stop-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; display: flex; gap: 10px; }
   .stop-badge { padding: 3px 9px; border-radius: 20px; font-size: 0.68rem; font-weight: 500; white-space: nowrap; }
-  .badge-diving  { background: var(--surface-3); color: var(--text-muted); }
-  .badge-nature  { background: var(--surface-3); color: var(--text-muted); }
-  .badge-culture { background: var(--surface-3); color: var(--text-muted); }
-  .badge-beach   { background: var(--surface-3); color: var(--text-muted); }
-  .badge-city    { background: var(--surface-3); color: var(--text-muted); }
+  .badge-diving  { background: rgba(58,150,200,0.18); color: #7ec5e8; }
+  .badge-nature  { background: rgba(80,160,110,0.18); color: #7ecf9a; }
+  .badge-culture { background: rgba(160,110,190,0.18); color: #c9a0e0; }
+  .badge-beach   { background: rgba(244,194,79,0.18); color: var(--gold); }
+  .badge-city    { background: rgba(160,110,190,0.18); color: #c9a0e0; }
   .stop-toggle { font-size: 1rem; color: var(--text-dim); transition: transform 0.2s; }
   .stop-card.expanded .stop-toggle { transform: rotate(180deg); }
   .stop-body { padding: 14px 16px; display: none; border-top: 1px solid var(--border); background: var(--surface-2); }
@@ -295,12 +295,12 @@
   .cal-day.empty { background: var(--navy); }
   .cal-day-num { font-size: 0.68rem; color: var(--text-dim); margin-bottom: 2px; }
   .cal-event { border-radius: 3px; padding: 1px 3px; font-size: 0.56rem; font-weight: 500; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
-  .ev-mexico     { background: rgba(244,194,79,0.18); color: #c9a035; }
-  .ev-guatemala  { background: rgba(52,80,138,0.4);   color: #8aaad8; }
-  .ev-honduras   { background: rgba(52,80,138,0.6);   color: #aac4e8; }
-  .ev-panama     { background: rgba(22,38,64,0.9);    color: #6a8ab8; }
-  .ev-nicaragua  { background: rgba(52,80,138,0.5);   color: #9ab8d8; }
-  .ev-belize     { background: rgba(52,80,138,0.3);   color: #7a9ac8; }
+  .ev-mexico     { background: rgba(244,194,79,0.18); color: #d4ab4a; }
+  .ev-guatemala  { background: rgba(80,160,110,0.2);  color: #7ecf9a; }
+  .ev-honduras   { background: rgba(58,150,200,0.2);  color: #7ec5e8; }
+  .ev-panama     { background: rgba(150,150,160,0.18);color: #aab0bc; }
+  .ev-nicaragua  { background: rgba(160,110,190,0.2); color: #c9a0e0; }
+  .ev-belize     { background: rgba(220,110,90,0.18); color: #e89a82; }
   .ev-transit    { background: rgba(255,255,255,0.06); color: var(--text-dim); border: 1px dashed var(--border-med); }
   .ev-warning    { background: rgba(224,80,80,0.2);   color: #e08080; }
 
@@ -316,8 +316,8 @@
   .visa-counter { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--text); }
   .visa-counter:last-child { border-bottom: none; }
   .visa-days { font-weight: 600; font-size: 0.82rem; }
-  .visa-days.ok   { color: var(--text); }
-  .visa-days.warn { color: var(--gold); }
+  .visa-days.ok   { color: #7ecf9a; }
+  .visa-days.warn { color: #e8b860; }
   .checklist-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--text); }
   .checklist-item:last-child { border-bottom: none; }
   .check-box { width: 17px; height: 17px; border: 1px solid var(--border-med); border-radius: 4px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; margin-top: 1px; }
@@ -335,8 +335,8 @@
   .budget-bar-wrap { background: var(--surface-3); border-radius: 4px; height: 5px; overflow: hidden; }
   .budget-bar { height: 100%; border-radius: 4px; background: var(--c3); transition: width 0.6s; }
   .amount { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
-  .amount.green { color: var(--text); }
-  .amount.red   { color: var(--gold); }
+  .amount.green { color: #7ecf9a; }
+  .amount.red   { color: #e0707a; }
   .budget-full { grid-column: 1 / -1; }
   .monthly-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); }
   .monthly-cell { background: var(--surface); padding: 14px; }
@@ -376,9 +376,9 @@
 
   /* ── TAGS / BADGES ── */
   .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.68rem; margin: 2px; }
-  .tag-warn { background: var(--surface-3); color: var(--text-muted); }
-  .tag-ok   { background: var(--surface-3); color: var(--text); }
-  .tag-info { background: var(--surface-3); color: var(--text-muted); }
+  .tag-warn { background: rgba(210,150,60,0.18); color: #e8b860; }
+  .tag-ok   { background: rgba(80,160,110,0.18); color: #7ecf9a; }
+  .tag-info { background: rgba(58,150,200,0.18); color: #7ec5e8; }
 
   /* ── BUTTONS ── */
   .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.85rem; font-weight: 500; transition: all 0.15s; }
@@ -1295,7 +1295,7 @@ function buildScheduleFromStops() {
   // Build a dayMap and a dated stop list from stopData + currentStart
   const dayMap = {};
   const stopDates = []; // { name, flag, ca4, arrivalDate, departureDate }
-  const clsMap = { mx:'ev-mexico', gt:'ev-guatemala', hn:'ev-honduras', pa:'ev-panama' };
+  const clsMap = { mx:'ev-mexico', gt:'ev-guatemala', hn:'ev-honduras', pa:'ev-panama', bz:'ev-belize', ni:'ev-nicaragua', sv:'ev-guatemala', cr:'ev-panama' };
   const countryKey = { '🇲🇽':'mx','🇬🇹':'gt','🇭🇳':'hn','🇵🇦':'pa' };
 
   // 1 transit day between each stop (except within same country)
@@ -1924,14 +1924,14 @@ const stopDetails = {
 };
 
 const countryMeta = {
-  '🇲🇽': { name:'Mexico',    info:'Visa-free · 180 days · No CA-4', color:'#8aaad8', bg:'rgba(52,80,138,0.25)' },
-  '🇬🇹': { name:'Guatemala', info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone starts · 90 days shared', color:'#8aaad8', bg:'rgba(52,80,138,0.35)' },
-  '🇭🇳': { name:'Honduras',  info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 continues · monitor days', color:'#6a8ab8', bg:'rgba(52,80,138,0.45)' },
-  '🇵🇦': { name:'Panama',    info:'✅ Outside CA-4 · visa-free · 90 days fresh', color:'#5a7aa8', bg:'rgba(22,38,64,0.9)' },
-  '🇧🇿': { name:'Belize',    info:'Visa-free · outside CA-4 — resets counter!', color:'#c04010', bg:'rgba(52,80,138,0.20)' },
-  '🇨🇷': { name:'Costa Rica',info:'Visa-free · 90 days · outside CA-4', color:'#8aaad8', bg:'rgba(52,80,138,0.35)' },
-  '🇸🇻': { name:'El Salvador', info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone · 90 days shared with GT/HN/NI', color:'#8aaad8', bg:'rgba(52,80,138,0.35)' },
-  '🇳🇮': { name:'Nicaragua',  info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone · 90 days shared with GT/HN/SV', color:'#8aaad8', bg:'rgba(52,80,138,0.30)' },
+  '🇲🇽': { name:'Mexico',    info:'Visa-free · 180 days · No CA-4', color:'#d4ab4a', bg:'rgba(244,194,79,0.1)' },
+  '🇬🇹': { name:'Guatemala', info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone starts · 90 days shared', color:'#7ecf9a', bg:'rgba(80,160,110,0.1)' },
+  '🇭🇳': { name:'Honduras',  info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 continues · monitor days', color:'#7ec5e8', bg:'rgba(58,150,200,0.1)' },
+  '🇵🇦': { name:'Panama',    info:'Outside CA-4 · visa-free · 90 days fresh', color:'#aab0bc', bg:'rgba(150,150,160,0.1)' },
+  '🇧🇿': { name:'Belize',    info:'Visa-free · outside CA-4 — resets counter', color:'#e89a82', bg:'rgba(220,110,90,0.1)' },
+  '🇨🇷': { name:'Costa Rica',info:'Visa-free · 90 days · outside CA-4', color:'#aab0bc', bg:'rgba(150,150,160,0.1)' },
+  '🇸🇻': { name:'El Salvador', info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone · 90 days shared with GT/HN/NI', color:'#7ecf9a', bg:'rgba(80,160,110,0.1)' },
+  '🇳🇮': { name:'Nicaragua',  info:'<i class="ti ti-alert-triangle" aria-hidden="true"></i> CA-4 zone · 90 days shared with GT/HN/SV', color:'#c9a0e0', bg:'rgba(160,110,190,0.1)' },
 };
 
 function buildItineraryAccordion() {
