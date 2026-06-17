@@ -1951,7 +1951,7 @@ function buildItineraryAccordion() {
       divider.style.cssText = 'display:flex;align-items:center;gap:10px;padding:14px 4px 6px;';
       divider.innerHTML =
         '<span style="font-size:1.1rem;">' + s.flag + '</span>' +
-        '<span style="font-size:0.72rem;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.08em;">' + meta.name + '</span>' +
+        '<span style="font-size:0.72rem;font-weight:700;color:' + meta.color + ';text-transform:uppercase;letter-spacing:0.08em;">' + meta.name + '</span>' +
         '<span style="font-size:0.7rem;color:var(--text-dim);margin-left:6px;">' + meta.info + '</span>' +
         '<div style="flex:1;height:1px;background:var(--border);margin-left:8px;"></div>';
       acc.appendChild(divider);
@@ -1961,7 +1961,7 @@ function buildItineraryAccordion() {
     const d = stopDetails[s.name] || { notes: '', activities: [] };
     const inlineId = 'inline-stop-' + i;
     const card = document.createElement('div');
-    card.style.cssText = 'background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:6px;overflow:hidden;';
+    card.style.cssText = 'background:' + meta.bg + ';border-radius:12px;border:1px solid var(--border);border-left:3px solid ' + meta.color + ';margin-bottom:6px;overflow:hidden;';
 
     const activitiesHTML = d.activities.length
       ? '<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:12px 0 7px;font-weight:600;">Activities</div>' +
@@ -1976,7 +1976,7 @@ function buildItineraryAccordion() {
 
     card.innerHTML =
       '<div onclick="toggleStopInline(\'' + inlineId + '\')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;">' +
-        '<div style="width:26px;height:26px;background:var(--c3);color:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">' + (i + 1) + '</div>' +
+        '<div style="width:26px;height:26px;background:' + meta.color + ';color:var(--c1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">' + (i + 1) + '</div>' +
         '<div style="flex:1;min-width:0;">' +
           '<div style="font-weight:600;font-size:0.92rem;color:var(--text);">' + s.name + '</div>' +
           '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">' + s.days + ' days · $' + s.accom + '/night · $' + s.food + '/day food' + (s.dive ? ' · $' + s.dive + '/day dive' : '') + '</div>' +
