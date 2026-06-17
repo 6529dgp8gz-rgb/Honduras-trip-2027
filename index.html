@@ -30,9 +30,10 @@
     --surface-3: #1e2e4e;
 
     /* Text — desaturated blues, not pure white */
+    --text-bright:#f0f3fa;
     --text:      #d0d8ea;
-    --text-muted:#6a7a96;
-    --text-dim:  #3a4a62;
+    --text-muted:#8090ac;
+    --text-dim:  #4a5a78;
 
     /* Borders — very subtle */
     --border:    rgba(52,80,138,0.25);
@@ -127,7 +128,7 @@
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: var(--text);
+    color: var(--text-bright);
   }
   .header-title span { color: var(--gold); }
   .header-subtitle { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; letter-spacing: 0.04em; }
@@ -192,7 +193,7 @@
   .summary-card.sand   { border-left-color: var(--c3); }
   .summary-card.purple { border-left-color: var(--c3); }
   .summary-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px; }
-  .summary-value { font-size: 1.35rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+  .summary-value { font-size: 1.35rem; font-weight: 700; color: var(--text-bright); letter-spacing: -0.02em; }
   .summary-sub   { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
 
   /* ── PAGES ── */
@@ -219,7 +220,7 @@
   .country-btn.active { background: var(--surface-3); border-color: var(--c3); color: var(--text); }
   .country-flag  { font-size: 1.4rem; }
   .country-info  { flex: 1; }
-  .country-name  { font-weight: 600; font-size: 0.88rem; }
+  .country-name  { font-weight: 600; font-size: 0.88rem; color: var(--text-bright); }
   .country-dates { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
   .country-days  {
     font-size: 0.75rem; font-weight: 600;
@@ -251,7 +252,7 @@
     font-size: 0.8rem; font-weight: 600; flex-shrink: 0;
   }
   .stop-title { flex: 1; }
-  .stop-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+  .stop-name { font-size: 1.05rem; font-weight: 600; color: var(--text-bright); }
   .stop-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; display: flex; gap: 10px; }
   .stop-badge { padding: 3px 9px; border-radius: 20px; font-size: 0.68rem; font-weight: 500; white-space: nowrap; }
   .badge-diving  { background: rgba(58,150,200,0.18); color: #7ec5e8; }
@@ -286,7 +287,7 @@
     padding: 12px 18px; display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid var(--border);
   }
-  .month-name  { font-size: 1rem; font-weight: 600; }
+  .month-name  { font-size: 1rem; font-weight: 600; color: var(--text-bright); }
   .month-range { font-size: 0.72rem; color: var(--text-muted); }
   .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); width: 100%; }
   .cal-dow { text-align: center; font-size: 0.6rem; text-transform: uppercase; color: var(--text-dim); padding: 7px 2px 5px; border-bottom: 1px solid var(--border); }
@@ -326,7 +327,7 @@
   /* ── BUDGET ── */
   .budget-card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 14px; }
   .budget-card-header { padding: 14px 18px; background: var(--surface-2); color: var(--text); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-  .budget-card-header h3 { font-size: 0.9rem; font-weight: 600; }
+  .budget-card-header h3 { font-size: 0.9rem; font-weight: 600; color: var(--text-bright); }
   .budget-total { font-size: 1rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
   .budget-table { width: 100%; border-collapse: collapse; }
   .budget-table th { text-align: left; padding: 9px 14px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--surface-2); }
@@ -360,7 +361,7 @@
   .note-cat-btn.active { background: var(--surface-3); border-color: var(--c3); color: var(--text); }
   .notes-section { display: none; }
   .notes-section.active { display: block; }
-  .notes-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 18px; color: var(--text); }
+  .notes-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 18px; color: var(--text-bright); }
   .info-cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .info-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 16px; }
   .info-card h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
@@ -368,7 +369,7 @@
   .info-row:last-child { border-bottom: none; }
   .info-row span:last-child { font-weight: 500; text-align: right; }
   .shared-notes-area { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 18px; }
-  .shared-notes-area h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--text); }
+  .shared-notes-area h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--text-bright); }
   .big-textarea { width: 100%; min-height: 200px; border: 1px solid var(--border); border-radius: 8px; padding: 13px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.88rem; resize: vertical; color: var(--text); line-height: 1.6; background: var(--surface-2); }
   .big-textarea:focus { outline: none; border-color: var(--c3); }
   .notes-textarea { width: 100%; min-height: 80px; border: 1px solid var(--border); border-radius: 6px; padding: 9px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.82rem; resize: vertical; background: var(--surface-2); color: var(--text); }
@@ -1434,7 +1435,7 @@ const stopCoords = {
   'Bocas del Toro':      { lat:  9.34,  lng: -82.24,  country: 'pa' },
 };
 
-const countryColors = { mx:'#6a7aA8', gt:'#5a6a98', hn:'#4a5a88', bz:'#3a4a78', sv:'#5a6a98', ni:'#4a5a88', pa:'#34508A' };
+const countryCodeToFlag = { mx:'🇲🇽', gt:'🇬🇹', hn:'🇭🇳', bz:'🇧🇿', sv:'🇸🇻', ni:'🇳🇮', pa:'🇵🇦', cr:'🇨🇷' };
 
 let mapInitialized = false;
 let leafletMap = null;
@@ -1455,9 +1456,10 @@ function initMap() {
   if (list) {
     list.innerHTML = '';
     mapStops.forEach(s => {
+      const meta = countryMeta[s.flag] || { color: 'var(--c3)' };
       const div = document.createElement('div');
-      div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--surface-2);border-radius:8px;margin-bottom:5px;border:1px solid var(--border);';
-      div.innerHTML = `<div style="width:24px;height:24px;background:var(--c3);color:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${s.order}</div><div><div style="font-weight:600;font-size:0.85rem;">${s.flag} ${s.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${s.days} days</div></div>`;
+      div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--surface-2);border-radius:8px;margin-bottom:5px;border:1px solid var(--border);border-left:3px solid ' + meta.color + ';';
+      div.innerHTML = `<div style="width:24px;height:24px;background:${meta.color};color:var(--c1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${s.order}</div><div><div style="font-weight:600;font-size:0.85rem;color:var(--text);">${s.flag} ${s.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${s.days} days</div></div>`;
       list.appendChild(div);
     });
   }
@@ -1483,14 +1485,15 @@ function initMap() {
   }
 
   mapStops.forEach(s => {
+    const meta = countryMeta[s.flag] || { color: '#34508A' };
     const icon = L.divIcon({
       className: '',
-      html: `<div style="width:26px;height:26px;background:#34508A;color:#d0d8ea;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid rgba(244,194,79,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.5);">${s.order}</div>`,
+      html: `<div style="width:26px;height:26px;background:${meta.color};color:#0A1428;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1.5px solid rgba(244,194,79,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.5);">${s.order}</div>`,
       iconSize: [26, 26], iconAnchor: [13, 13]
     });
     L.marker([s.lat, s.lng], { icon })
       .addTo(leafletMap)
-      .bindPopup(`<strong>${s.flag} ${s.name}</strong><br><span style="font-size:0.8rem;color:#888;">${s.days} days</span>`);
+      .bindPopup(`<strong style="color:${meta.color};">${s.flag} ${s.name}</strong><br><span style="font-size:0.8rem;color:#888;">${s.days} days</span>`);
   });
 
   mapInitialized = true;
@@ -1978,7 +1981,7 @@ function buildItineraryAccordion() {
       '<div onclick="toggleStopInline(\'' + inlineId + '\')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;">' +
         '<div style="width:26px;height:26px;background:' + meta.color + ';color:var(--c1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">' + (i + 1) + '</div>' +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-weight:600;font-size:0.92rem;color:var(--text);">' + s.name + '</div>' +
+          '<div style="font-weight:600;font-size:0.92rem;color:var(--text-bright);">' + s.name + '</div>' +
           '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">' + s.days + ' days · $' + s.accom + '/night · $' + s.food + '/day food' + (s.dive ? ' · $' + s.dive + '/day dive' : '') + '</div>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' +
